@@ -1,0 +1,180 @@
+$toolboxBG: #222222;
+$boxShadow: #999999;
+$headerBG: #333333;
+$headerColor: #ffcc99;
+$toolButtonColor: #eeeeee;
+$toolButtonBG: #444444;
+#chrome-ruler {
+  font-size: 12px;
+  font-family: "Lucida Grande", "Trebuchet MS", sans-serif;
+  .toolbox, .layers, .props {
+    min-width: 74px;
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    background-color: $toolboxBG;
+    box-shadow: 0 0 16px 1px $boxShadow;
+    z-index: 999;
+    user-select: none;
+    padding-bottom: 4px;
+    .header {
+      display: block;
+      font-size: 1em;
+      font-weight: bold;
+      left: 0;
+      top: 0;
+      box-sizing: border-box;
+      width: 100%;
+      background-color: $headerBG;
+      margin: 0;
+      color: $headerColor;
+      padding: 2px 0 0 5px;
+      cursor: pointer;
+
+    }
+  }
+  .tools {
+    max-width: 72px;
+    margin: 0 auto;
+
+    button {
+      width: 32px;
+      height: 32px;
+      border: $toolButtonColor 1px solid;
+      margin: 2px;
+      cursor: pointer;
+      float: left;
+      box-sizing: border-box;
+      color: $toolButtonColor;
+      background-color: $toolButtonBG;
+      div {
+        border-color: $toolButtonColor !important;
+      }
+    }
+
+  }
+  .item:hover .label {
+    display: inline-block;
+  }
+  .item {
+    box-sizing: border-box;
+    position: absolute;
+    user-select: none;
+    .label {
+      border-radius: 2px;
+      line-height: 1em;
+      background-color: $headerBG;
+      color: $headerColor;
+      padding: 0 4px;
+      display: none;
+      position: absolute;
+    }
+
+  }
+  .hr {
+
+    left: 0;
+    top: 50px;
+    width: 100%;
+    height: 1px;
+    border: none;
+    cursor: row-resize;
+    .label{
+      margin-left:0;
+      margin-top: -.7em;
+
+    }
+
+  }
+  .vr {
+    left: 50px;
+    top: 0;
+    height: 100%;
+    width: 1px;
+    border: none;
+    cursor: col-resize;
+    .label{
+      margin-left:-1em;
+      margin-top: 1em;
+    }
+  }
+  .item.square, .item.circle {
+    position: absolute;
+    left: 100px;
+    top: 100px;
+    display: block;
+    width: 100px;
+    height: 100px;
+    cursor: move;
+    border: 1px solid;
+    .label{
+      margin-top: -1.4em;
+    }
+  }
+  .item.circle {
+    border-radius: 50%;
+  }
+  .layers {
+    min-width: 160px;
+    ul.selected {
+      border-left: $headerColor 4px inset;
+      box-sizing: border-box;
+      li.label {
+        font-weight: bold;
+      }
+    }
+    ul {
+      list-style: none;
+      margin: 1px 0;
+      padding: 0;
+      display: flex;
+
+      box-sizing: border-box;
+      .btn {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+      }
+      li {
+
+      }
+      li.visibility {
+        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAAAUCAYAAAD7s6+GAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAjlJREFUeNpiYBgFo2AUjCzAiEvCSZHbAEgFALE+A8N/gf///jIICIsxfHz/DiR9EIgv7Lv/dQOxFgHNE0CYx2AgJcrFwMnOzPD+0y+Gd59+PoCaeQBo5gOCDoUaVsAnIBhv6eytYO3mw/D80V2GBX0NDJ8/fQCrUdU2YGiZs4Hh7vXLDKcO7PpwfO+2DW9fvWjEZQHQTAcgla+qKBqgLC/MICrIySACxOjg6asvDE9efGa4de/1gTfvviwEmrcAq0OBBjZIyinmx+ZWCLgHR4PFXjx5wBBhqcjw+x8Dw/c/EMWcLAwMJtYODBNW7Qer+fLpI8PR3VsYNiycseDWlfOFQAs+IDmw30BfxcDOSotBgI+L6Gh++PgNw7FTNx7cvvMkEWjeAbBDoVE8Pz6/yiAuvwpFw5q5Exgm1RcyfPjJwPD4MwMDCxMDgywvAwMvGzCeHv/HsGDFjL4Ps7vqCkHRq6yiUBAW5skgKMhHdrq8d+8Jw/Hj5yfEJ0U0shCj4R/QTT//Quj/IPf9J6yHiYmZgUtAgoFXRIRsh3K8+sbAxMzKYOBb/IFg1IcDo/4nMNo//wZaDlTNywpU6xUATKfriYn6ehtHB4egqBgGUQkJoh147eIFhi1r1z64fP48IuqJyUzzgZnp08cPYMVqoMw0l/TMZGpjF2Bu58SgqKbBoKSuhaHu8pkTDFfOnWY4tn/PgScP7uPOTPQunvRMLRn4hYQZHt25xfDw7i2CxdMoGAWjYKQBgAADAHk1D2imJwAqAAAAAElFTkSuQmCC') no-repeat 0 0;
+      }
+      li.visibility.off {
+        background-position: -20px 0;
+      }
+      li.label {
+        flex-grow: 4;
+        padding-left: 5px;
+        font-style: italic;
+        box-sizing: border-box;
+        line-height: 1.8em;
+        font-size: 1em;
+        color: $toolButtonColor;
+      }
+      li.remove {
+        font-size: 1.5em;
+        text-align: center;
+        color: $toolButtonColor;
+      }
+
+    }
+  }
+  .props {
+    left: 200px;
+    table {
+      width: 160px;
+      color: #cccccc;
+      font-size: 10px;
+
+      input[type="text"] {
+        border: none;
+        background-color: transparent;
+        color: #cccccc;
+        width: 100%;
+        font-size: 10px;
+      }
+    }
+  }
+}
