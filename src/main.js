@@ -1,15 +1,6 @@
 /**
  * Created by es on 28.12.2015.
  */
-/**
- * 1- prepare tools :
- *  -- layer
- *      -- ruler
- *      -- square
- *      -- circle
- *  2-
- *  */
-
 ;
 (function ($) {
 
@@ -127,29 +118,31 @@
         elements.workspace = $('<div/>').attr('id', 'chrome-ruler');
         $('body').append(elements.workspace);
         self._prepareToolBox();
-        self._horizontalRuler();
-        self._verticalRuler();
         self._addTools();
         self._prepareLayersBox();
         self._preparePropsBox();
         actions.draggable.call(elements.toolbox);
         actions.draggable.call(elements.layersBox);
         actions.draggable.call(elements.propsbox);
+
+        elements.layersBox.hide();
+        $('.toggle').on('click', function () {
+            $(this).parent().next().toggle();
+            $(this).hasClass('collapsed')?$(this).removeClass('collapsed'):$(this).addClass('collapsed');
+        });
     };
     RULER._prepareToolBox = function () {
         elements.toolbox = $('<div/>')
             .addClass('toolbox');
         var header = $('<h1/>')
             .addClass('header')
-            .html('Toolbox');
+            .html('<span>Tools</span><div class="toggle">&lsaquo;</div>');
         elements.tools = $('<div/>')
             .addClass('tools');
         elements.toolbox.append(header);
         elements.toolbox.append(elements.tools);
         elements.workspace.append(elements.toolbox);
-        header.on('click', function () {
-            $(this).next().toggle();
-        });
+
     };
     RULER._toolHorizontalLine = function () {
         var self = this,
@@ -216,32 +209,6 @@
                 title: 'Draw a Circle'
             });
     };
-    RULER._horizontalRuler = function () {
-        elements.hRuler = $('<div/>')
-            .css({
-                width: '100%',
-                height: 20,
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                opacity: '.1',
-                backgroundColor: '#ccc'
-            });
-        elements.workspace.append(elements.hRuler);
-    };
-    RULER._verticalRuler = function () {
-        elements.vRuler = $('<div/>')
-            .css({
-                width: 20,
-                height: '100%',
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                opacity: '.1',
-                backgroundColor: '#ccc'
-            });
-        elements.workspace.append(elements.vRuler);
-    };
     RULER._addTools = function () {
         var self = this;
         elements.tools.append(self._toolHorizontalLine());
@@ -254,14 +221,12 @@
             .addClass('layers');
         var header = $('<h1/>')
             .addClass('header')
-            .html('Items');
+            .html('<span>Items</span><div class="toggle">&lsaquo;</div>');;
         elements.layers = $('<div/>');
         elements.layersBox.append(header);
         elements.layersBox.append(elements.layers);
         elements.workspace.append(elements.layersBox);
-        header.on('click', function () {
-            $(this).next().toggle();
-        });
+
         elements.layersBox.css({
             top: elements.toolbox.position().top + elements.toolbox.height() + 20
         });
@@ -287,6 +252,8 @@
                     targetID = '#' + parent.attr('data-target');
                 parent.remove();
                 $(targetID).remove();
+                elements.propsbox.hide();
+                if(elements.layers.find('ul').length == 0) elements.layersBox.hide();
             },
             hideItem = function () {
                 var parent = $(this).parent('ul'),
@@ -309,13 +276,14 @@
         ul.append(label);
         ul.append(remove);
         elements.layers.append(ul);
+        elements.layersBox.show();
     };
     RULER._preparePropsBox = function () {
         elements.propsbox = $('<div/>')
             .addClass('props');
         var header = $('<h1/>')
                 .addClass('header')
-                .html('Properties'),
+            .html('<span>Properties</span><div class="toggle">&lsaquo;</div>'),
             table = $('<div/>').html('<table border="0">' +
             '<tr><td colspan="3"></td></tr>' +
             '<tr><td>Left:</td><td><input type="text" name="xpos"/></td><td>px</td></tr>' +
@@ -330,9 +298,7 @@
         elements.propsTable.ypos = $('.props input[name=ypos]');
         elements.propsTable.width = $('.props input[name=width]');
         elements.propsTable.height = $('.props input[name=height]');
-        header.on('click', function () {
-            $(this).next().toggle();
-        });
+
         elements.propsbox.hide();
 
     };

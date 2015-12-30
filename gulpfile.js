@@ -29,4 +29,4 @@ gulp.task('watch', function () {
     gulp.watch('src/*.js', ['js']);
     gulp.watch('src/*.scss', ['css']);
 });
-gulp.task('default', ['watch']);
+gulp.task('default', ['watch','css','js']);
