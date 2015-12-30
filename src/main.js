@@ -14,15 +14,15 @@
             layersBox: {},
             layers: {},
             items: {},
-            uniqueID: 0,
             propsTable: {}
         },
+        uniqueID = 0,
+        selectedItem,
         actions = {
             'newItem': function (type) {
-                //:TODO update label value on move
 
-                elements.uniqueID++;
-                var label = $('<div/>').addClass('label').html('50px'),
+                uniqueID++;
+                var label = $('<div/>').addClass('label').html(''),
                     style = '', color = Math.floor(Math.random() * 16777215).toString(16);
 
                 color += String('000000').slice(color.length);
@@ -36,7 +36,7 @@
                         style = {'background-color': '#' + color};
                 }
                 return $('<div/>')
-                    .attr({id: 'item-' + elements.uniqueID, 'data-type': type, 'data-color': color})
+                    .attr({id: 'item-' + uniqueID, 'data-type': type, 'data-color': color})
                     .addClass('item ' + type)
                     .css(style)
                     .append(label);
@@ -49,10 +49,12 @@
                 elements.propsTable.height.val($(target).height());
             },
             'selectTarget': function (target) {
+                selectedItem = target;
                 actions.updatePropetries(target);
                 elements.propsbox.show();
             },
             'deSelectTarget': function (target) {
+                selectedItem = null;
                 elements.propsbox.hide();
             },
             'draggable': function () {
@@ -78,23 +80,24 @@
                         pos = {
                             x: event.pageX,
                             y: event.pageY,
-                            offsetX:Number(item.attr('data-offset-x')),
-                            offsetY:Number( item.attr('data-offset-y'))
+                            offsetX: Number(item.attr('data-offset-x')),
+                            offsetY: Number(item.attr('data-offset-y'))
                         };
+                    if(pos.x<0||pos.y<0) return dragEnd(event);
                     switch (type) {
                         case 'vr':
                             self.css({left: pos.x});
-                            self.find('.label').html('x:&nbsp;'+pos.x + 'px');
+                            self.find('.label').html(pos.x);
                             break;
                         case 'hr':
                             self.css({top: pos.y});
-                            self.find('.label').html('y:&nbsp;'+pos.y + 'px');
+                            self.find('.label').html(pos.y);
                             break;
                         case 'square':
                         case 'circle':
                             var x = pos.x - pos.offsetX, y = pos.y - pos.offsetY;
                             self.css({top: pos.y + pos.offsetY, left: pos.x + pos.offsetX});
-                            self.find('.label').html(pos.x + 'px ,' + pos.y + 'px');
+                            self.find('.label').html(pos.x + ', ' + pos.y);
                             break;
                         default:
                             var x = pos.x - pos.offsetX, y = pos.y - pos.offsetY;
@@ -110,7 +113,50 @@
                 $(self).on('mousedown', dragStart);
 
                 //          $(self).on('mouseup', dragEnd);
+            },
+            'moveOnX': function () {
+                var val = elements.propsTable.xpos.val();
+                val = String(val).replace(/[^0-9]/g, '');
+                elements.propsTable.xpos.val(val);
+                $(selectedItem).css({left: val + 'px'});
+            },
+            'moveOnY': function () {
+                var val = elements.propsTable.ypos.val();
+                val = String(val).replace(/[^0-9]/g, '');
+                elements.propsTable.ypos.val(val);
+                $(selectedItem).css({top: val + 'px'});
+            },
+            'resizeW': function () {
+                var val = elements.propsTable.width.val();
+                val = String(val).replace(/[^0-9]/g, '');
+                elements.propsTable.width.val(val);
+                $(selectedItem).css({width: val + 'px'});
+            },
+            'resizeH': function () {
+                var val = elements.propsTable.height.val();
+                val = String(val).replace(/[^0-9]/g, '');
+                elements.propsTable.height.val(val);
+                $(selectedItem).css({height: val + 'px'});
+            },
+            'keySetVal': function (cb) {
+                var self = $(this),
+                    step = event.shiftKey ? 10 : 1;
+                console.log(event.which);
+                switch (event.which) {
+                    case 40: // keyUp
+                        break;
+                    case 38: //keyDown
+                        step *= -1;
+                        break;
+                    default:
+                        event.preventDefault();
+                        return;
+                }
+                self.val(Number(self.val()) - step);
+                cb();
+
             }
+
         },
         RULER = {};
     RULER.init = function () {
@@ -121,14 +167,31 @@
         self._addTools();
         self._prepareLayersBox();
         self._preparePropsBox();
+        self._assignEvents();
         actions.draggable.call(elements.toolbox);
         actions.draggable.call(elements.layersBox);
         actions.draggable.call(elements.propsbox);
 
         elements.layersBox.hide();
+
+    };
+    RULER._assignEvents = function () {
         $('.toggle').on('click', function () {
             $(this).parent().next().toggle();
-            $(this).hasClass('collapsed')?$(this).removeClass('collapsed'):$(this).addClass('collapsed');
+            $(this).hasClass('collapsed') ? $(this).removeClass('collapsed') : $(this).addClass('collapsed');
+        });
+
+        elements.propsTable.xpos.on('blur', actions.moveOnX).on('keydown', function () {
+            actions.keySetVal.call(this, actions.moveOnX)
+        });
+        elements.propsTable.ypos.on('blur', actions.moveOnY).on('keydown', function () {
+            actions.keySetVal.call(this, actions.moveOnY)
+        });
+        elements.propsTable.width.on('blur', actions.resizeW).on('keydown', function () {
+            actions.keySetVal.call(this, actions.resizeW)
+        });
+        elements.propsTable.height.on('blur', actions.resizeH).on('keydown', function () {
+            actions.keySetVal.call(this, actions.resizeH)
         });
     };
     RULER._prepareToolBox = function () {
@@ -221,7 +284,8 @@
             .addClass('layers');
         var header = $('<h1/>')
             .addClass('header')
-            .html('<span>Items</span><div class="toggle">&lsaquo;</div>');;
+            .html('<span>Items</span><div class="toggle">&lsaquo;</div>');
+        ;
         elements.layers = $('<div/>');
         elements.layersBox.append(header);
         elements.layersBox.append(elements.layers);
@@ -253,7 +317,7 @@
                 parent.remove();
                 $(targetID).remove();
                 elements.propsbox.hide();
-                if(elements.layers.find('ul').length == 0) elements.layersBox.hide();
+                if (elements.layers.find('ul').length == 0) elements.layersBox.hide();
             },
             hideItem = function () {
                 var parent = $(this).parent('ul'),
@@ -272,6 +336,13 @@
             label = $('<li/>').addClass('label').html(el.attr('data-type')).on('click', selectItem),
             remove = $('<li/>').addClass('btn remove').html('&times;').attr({title: 'Remove'}).on('click', removeItem);
 
+        el.on('click', function () {
+            var layerLabel = '[data-target=' + $(this).attr('id') + '] li.label';
+
+            $(layerLabel).trigger('click');
+
+        });
+
         ul.append(visibility);
         ul.append(label);
         ul.append(remove);
@@ -283,7 +354,7 @@
             .addClass('props');
         var header = $('<h1/>')
                 .addClass('header')
-            .html('<span>Properties</span><div class="toggle">&lsaquo;</div>'),
+                .html('<span>Properties</span><div class="toggle">&lsaquo;</div>'),
             table = $('<div/>').html('<table border="0">' +
             '<tr><td colspan="3"></td></tr>' +
             '<tr><td>Left:</td><td><input type="text" name="xpos"/></td><td>px</td></tr>' +

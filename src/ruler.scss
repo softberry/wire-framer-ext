@@ -5,7 +5,7 @@ $headerColor: #ffcc99;
 $toolButtonColor: #eeeeee;
 $toolButtonBG: #444444;
 #chrome-ruler {
-  font-size: 12px;
+  font-size: 10px;
   font-family: "Lucida Grande", "Trebuchet MS", sans-serif;
   .toolbox, .layers, .props {
     min-width: 74px;
@@ -30,6 +30,7 @@ $toolButtonBG: #444444;
       padding: 2px 0 0 5px;
       cursor: pointer;
       display: block;
+      line-height: 2em;
     }
     .toggle {
       display: inline-block;
@@ -81,9 +82,10 @@ $toolButtonBG: #444444;
       line-height: 1em;
       background-color: $headerBG;
       color: $headerColor;
-      padding: 0 4px;
+      padding: .2em .5em;
       display: none;
       position: absolute;
+      font-size: .8em;
     }
 
   }
@@ -137,6 +139,7 @@ $toolButtonBG: #444444;
       box-sizing: border-box;
       li.label {
         font-weight: bold;
+        background-color: rgba($headerColor,.1);
       }
     }
     ul {
@@ -147,8 +150,8 @@ $toolButtonBG: #444444;
 
       box-sizing: border-box;
       .btn {
-        width: 20px;
-        height: 20px;
+        width: 2em;
+        height: 2em;
         cursor: pointer;
       }
       li {
@@ -170,9 +173,10 @@ $toolButtonBG: #444444;
         color: $toolButtonColor;
       }
       li.remove {
-        font-size: 1.5em;
+        font-size: 1.0em;
         text-align: center;
         color: $toolButtonColor;
+        line-height: 2em;
       }
 
     }
