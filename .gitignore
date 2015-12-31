@@ -1,2 +1,5 @@
 _materials/
 .idea/
+dist/
+*.crx
+*.pem

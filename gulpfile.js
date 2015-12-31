@@ -14,6 +14,8 @@ gulp.task('js', function () {
         .pipe(concat('main.min.js'))
         .pipe(gulp.dest('./dist/'))
         .pipe(livereload());
+    gulp.src('./src/chrome.js')
+        .pipe(gulp.dest('./dist/'));
 });
 gulp.task('css', function () {
     gulp.src('./src/ruler.scss')

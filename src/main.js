@@ -5,6 +5,10 @@
 (function ($) {
 
     var elements = {
+            /*
+            All DOM Elements used as containers.
+             Shorthand variables for re-usability
+             */
             workspace: {},
             toolbox: {},
             propsbox: {},
@@ -16,51 +20,69 @@
             items: {},
             propsTable: {}
         },
-        uniqueID = 0,
-        selectedItem,
+        uniqueID = 0, /* each elements like lines and squares has a uniqueID.
+                                Automatically increased before a new Item inserted */
+        selectedItem, // shortcut to current selected Item on the stage
         actions = {
+            // Repeated functions served to RULER object
             'newItem': function (type) {
+                /*
+                * return a new DIV element,
+                * with default properties according to requested type
+                * */
+                uniqueID++; // Increase ID
+                var label = $('<div/>').addClass('label').html(''),                         //create label for the element
+                    style = '', color = Math.floor(Math.random() * 16777215).toString(16);  // set a rondom color
 
-                uniqueID++;
-                var label = $('<div/>').addClass('label').html(''),
-                    style = '', color = Math.floor(Math.random() * 16777215).toString(16);
-
-                color += String('000000').slice(color.length);
+                color += String('000000').slice(color.length); // fill unsufficent hexCode with 000000
 
                 switch (type) {
                     case 'circle':
-                    case 'square':
+                    case 'square': // surfaces has border color only
                         style = {'border-color': '#' + color};
                         break;
-                    default:
+                    default: // lines has backgroundcolor only
                         style = {'background-color': '#' + color};
                 }
-                return $('<div/>')
+                return $('<div/>') //prepare and return requested type of item
                     .attr({id: 'item-' + uniqueID, 'data-type': type, 'data-color': color})
                     .addClass('item ' + type)
                     .css(style)
                     .append(label);
             },
-            'updatePropetries': function (target) {
-                var pos = $(target).position();
+
+            'updateProperties': function () {
+                /*
+                    Get current position and size of the
+                 Selected and update input values in
+                 properties table
+                  */
+            if(!selectedItem) return;
+                var pos = selectedItem.position();
                 elements.propsTable.xpos.val(pos.left);
                 elements.propsTable.ypos.val(pos.top);
-                elements.propsTable.width.val($(target).width());
-                elements.propsTable.height.val($(target).height());
+                elements.propsTable.width.val(selectedItem.width());
+                elements.propsTable.height.val(selectedItem.height());
+
             },
             'selectTarget': function (target) {
-                selectedItem = target;
-                actions.updatePropetries(target);
-                elements.propsbox.show();
+
+                selectedItem = $(target); /* Set givenID as selected Item */
+                actions.updateProperties();/* update properties table*/
+                elements.propsbox.show(); /* show properties table*/
             },
             'deSelectTarget': function (target) {
-                selectedItem = null;
-                elements.propsbox.hide();
+                selectedItem = null; /* de-select item*/
+                elements.propsbox.hide(); /*hide Properties table*/
             },
             'draggable': function () {
+                /* Enable element to be draggable on the stage
+
+                 */
                 var self = this;
 
                 function dragStart() {
+                    // draggable element on mousedown function
                     var self = $(this),
                         pos = {
                             x: event.pageX,
@@ -75,6 +97,7 @@
                     $(window).one('mouseup', dragEnd);
                 };
                 function drag() {
+                    // dragging Function
                     var item = $('.draggable'),
                         type = item.attr('data-type'),
                         pos = {
@@ -82,8 +105,8 @@
                             y: event.pageY,
                             offsetX: Number(item.attr('data-offset-x')),
                             offsetY: Number(item.attr('data-offset-y'))
-                        };
-                    if(pos.x<0||pos.y<0) return dragEnd(event);
+                        }, x, y;
+                    if (pos.x < 0 || pos.y < 0) return dragEnd(event);
                     switch (type) {
                         case 'vr':
                             self.css({left: pos.x});
@@ -95,71 +118,89 @@
                             break;
                         case 'square':
                         case 'circle':
-                            var x = pos.x - pos.offsetX, y = pos.y - pos.offsetY;
-                            self.css({top: pos.y + pos.offsetY, left: pos.x + pos.offsetX});
-                            self.find('.label').html(pos.x + ', ' + pos.y);
+                            x = pos.x + pos.offsetX;
+                            y = pos.y + pos.offsetY;
+                            self.css({top: y, left: x});
+                            self.find('.label').html(x + ', ' + y);
                             break;
                         default:
-                            var x = pos.x - pos.offsetX, y = pos.y - pos.offsetY;
-                            self.css({top: pos.y + pos.offsetY, left: pos.x + pos.offsetX});
+                            x = pos.x + pos.offsetX;
+                            y = pos.y + pos.offsetY;
+                            self.css({top: y, left: x});
+
                     }
-                    actions.updatePropetries(self);
-                };
-                function dragEnd(e) {
+                    actions.updateProperties(self);
+                }
+
+                function dragEnd() {
+                    // Disable draggabilty function
                     $('.draggable').removeClass('draggable');
                     $(window).off('mousemove', drag);
 
-                };
+                }
+
                 $(self).on('mousedown', dragStart);
 
-                //          $(self).on('mouseup', dragEnd);
             },
             'moveOnX': function () {
+                // Change X position of an element allow negative numbers too
                 var val = elements.propsTable.xpos.val();
-                val = String(val).replace(/[^0-9]/g, '');
+                val = String(val).replace(/[^0-9\-]/g, '');
                 elements.propsTable.xpos.val(val);
                 $(selectedItem).css({left: val + 'px'});
             },
             'moveOnY': function () {
+                // Change Y position of an element  allow negative numbers too
                 var val = elements.propsTable.ypos.val();
-                val = String(val).replace(/[^0-9]/g, '');
+                val = String(val).replace(/[^0-9\-]/g, '');
                 elements.propsTable.ypos.val(val);
                 $(selectedItem).css({top: val + 'px'});
             },
             'resizeW': function () {
+                // Change Width  of an element DONOT allow negative numbers
                 var val = elements.propsTable.width.val();
                 val = String(val).replace(/[^0-9]/g, '');
                 elements.propsTable.width.val(val);
                 $(selectedItem).css({width: val + 'px'});
             },
             'resizeH': function () {
+                // Change height of an element DONOT allow negative numbers
                 var val = elements.propsTable.height.val();
                 val = String(val).replace(/[^0-9]/g, '');
                 elements.propsTable.height.val(val);
                 $(selectedItem).css({height: val + 'px'});
             },
             'keySetVal': function (cb) {
+                // change Item X,Y,W,H properties with up-down keys
                 var self = $(this),
                     step = event.shiftKey ? 10 : 1;
-                console.log(event.which);
+
                 switch (event.which) {
-                    case 40: // keyUp
-                        break;
-                    case 38: //keyDown
-                        step *= -1;
-                        break;
-                    default:
+                    case 40: //keyDown
                         event.preventDefault();
-                        return;
+                        self.val(Number(self.val()) - step);
+                        cb();
+                        break;
+                    case 38: // keyUp
+                        event.preventDefault();
+                        self.val(Number(self.val()) + step);
+                        cb();
+                        break;
+
+                    default:
                 }
-                self.val(Number(self.val()) - step);
-                cb();
+
 
             }
 
         },
         RULER = {};
     RULER.init = function () {
+        if ($('#chrome-ruler').length == 1) {
+            $('#chrome-ruler').remove();
+            return;
+        }
+
         var self = this;
         elements.workspace = $('<div/>').attr('id', 'chrome-ruler');
         $('body').append(elements.workspace);
@@ -192,6 +233,10 @@
         });
         elements.propsTable.height.on('blur', actions.resizeH).on('keydown', function () {
             actions.keySetVal.call(this, actions.resizeH)
+        });
+
+        $('#chrome-ruler *').on('contextmenu', function () {
+            event.preventDefault();
         });
     };
     RULER._prepareToolBox = function () {
@@ -285,7 +330,7 @@
         var header = $('<h1/>')
             .addClass('header')
             .html('<span>Items</span><div class="toggle">&lsaquo;</div>');
-        ;
+
         elements.layers = $('<div/>');
         elements.layersBox.append(header);
         elements.layersBox.append(elements.layers);
@@ -296,7 +341,10 @@
         });
     };
     RULER.addLayer = function (el) {
-        actions.updatePropetries(el);
+        actions.updateProperties(el);
+        el.on('contextmenu', function () {
+            event.preventDefault();
+        });
         var selectItem = function () {
 
                 var parent = $(this).parent('ul'),
@@ -369,9 +417,8 @@
         elements.propsTable.ypos = $('.props input[name=ypos]');
         elements.propsTable.width = $('.props input[name=width]');
         elements.propsTable.height = $('.props input[name=height]');
-
         elements.propsbox.hide();
-
     };
     RULER.init();
+
 })(Zepto);
