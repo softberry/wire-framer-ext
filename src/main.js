@@ -3,10 +3,11 @@
  */
 ;
 (function ($) {
+    'use strict';
 
     var elements = {
             /*
-            All DOM Elements used as containers.
+             All DOM Elements used as containers.
              Shorthand variables for re-usability
              */
             workspace: {},
@@ -21,68 +22,119 @@
             propsTable: {}
         },
         uniqueID = 0, /* each elements like lines and squares has a uniqueID.
-                                Automatically increased before a new Item inserted */
-        selectedItem, // shortcut to current selected Item on the stage
+     Automatically increased before a new Item inserted */
+        selectedItem = null, // shortcut to current selected Item on the stage
+        resizableItems = {},
         actions = {
             // Repeated functions served to RULER object
             'newItem': function (type) {
                 /*
-                * return a new DIV element,
-                * with default properties according to requested type
-                * */
+                 * return a new DIV element,
+                 * with default properties according to requested type
+                 * */
+
                 uniqueID++; // Increase ID
                 var label = $('<div/>').addClass('label').html(''),                         //create label for the element
-                    style = '', color = Math.floor(Math.random() * 16777215).toString(16);  // set a rondom color
+                    color = Math.floor(Math.random() * 16777215).toString(16);  // set a rondom color
 
                 color += String('000000').slice(color.length); // fill unsufficent hexCode with 000000
-
+                var el = $('<div/>'); //prepare and return requested type of item
                 switch (type) {
                     case 'circle':
                     case 'square': // surfaces has border color only
-                        style = {'border-color': '#' + color};
+                        el.css({'border-color': '#' + color});
+                        break;
+                    case 'text':
+                        var editableText = $('<div/>')
+                            .attr('contentEditable','true')
+                            .html('Text')
+                            .addClass('editable');
+                        el
+                            .css({'border-color': '#' + color})
+                            .append(editableText);
+
                         break;
                     default: // lines has backgroundcolor only
-                        style = {'background-color': '#' + color};
+                        el.css({'background-color': '#' + color});
                 }
-                return $('<div/>') //prepare and return requested type of item
-                    .attr({id: 'item-' + uniqueID, 'data-type': type, 'data-color': color})
+
+                    el.attr({id: 'item-' + uniqueID, 'data-type': type, 'data-color': color})
                     .addClass('item ' + type)
-                    .css(style)
                     .append(label);
+                if (resizableItems[type]) {
+                    //if an Item Resizable prepare its resizer handles.
+                    actions.resizable.call(el)
+                }
+                return el;
             },
 
             'updateProperties': function () {
                 /*
-                    Get current position and size of the
+                 Get current position and size of the
                  Selected and update input values in
                  properties table
-                  */
-            if(!selectedItem) return;
+                 */
+                if (selectedItem == null) return;
                 var pos = selectedItem.position();
                 elements.propsTable.xpos.val(pos.left);
                 elements.propsTable.ypos.val(pos.top);
                 elements.propsTable.width.val(selectedItem.width());
                 elements.propsTable.height.val(selectedItem.height());
 
+                if(resizableItems[selectedItem.data('type')]){
+                    /* update positions of handels*/
+                    var w = selectedItem.width(), // get container width
+                        h = selectedItem.height(),
+                        id = selectedItem.attr('id'); // get container height
+                    /* prepare handles, set type and class attributes as well as initial positions*/
+                    $('#' + id + ' .rs-n').css({left: w / 2 - 5, top: -5}),
+                        $('#' + id + ' .rs-w').css({left:  -5, top: h / 2 - 5}),
+                        $('#' + id + ' .rs-s').css({left: w / 2 - 5, top: h - 5}),
+                        $('#' + id + ' .rs-e').css({left: w - 5, top: h / 2 - 5});
+                }
             },
             'selectTarget': function (target) {
 
-                selectedItem = $(target); /* Set givenID as selected Item */
-                actions.updateProperties();/* update properties table*/
-                elements.propsbox.show(); /* show properties table*/
+                selectedItem = $(target);
+                /* Set givenID as selected Item */
+                actions.updateProperties();
+                /* update properties table*/
+                elements.propsbox.show();
+                /* show properties table*/
+                if (resizableItems[selectedItem.data('type')]) {
+                    selectedItem.addClass('resizable');
+
+                    var w = selectedItem.width(), // get container width
+                        h = selectedItem.height(),
+                        id = selectedItem.attr('id'); // get container height
+                    /* prepare handles, set type and class attributes as well as initial positions*/
+                    $('#' + id + ' .rs-n').css({left: w / 2 - 5, top: -5}),
+                        $('#' + id + ' .rs-w').css({left:  -5, top: h / 2 - 5}),
+                        $('#' + id + ' .rs-s').css({left: w / 2 - 5, top: h - 5}),
+                        $('#' + id + ' .rs-e').css({left: w - 5, top: h / 2 - 5});
+
+                }
+
             },
             'deSelectTarget': function (target) {
-                selectedItem = null; /* de-select item*/
-                elements.propsbox.hide(); /*hide Properties table*/
+                if (selectedItem === null) return;
+                selectedItem.removeClass('resizable');
+                selectedItem = null;
+                /* de-select item*/
+                elements.propsbox.hide();
+                /*hide Properties table*/
+
             },
             'draggable': function () {
                 /* Enable element to be draggable on the stage
 
                  */
-                var self = this;
 
+                var self = this;
+                $('.draggable').removeClass('draggable');
                 function dragStart() {
                     // draggable element on mousedown function
+                    event.stopPropagation();
                     var self = $(this),
                         pos = {
                             x: event.pageX,
@@ -98,15 +150,17 @@
                 };
                 function drag() {
                     // dragging Function
+
                     var item = $('.draggable'),
-                        type = item.attr('data-type'),
+                        type = item.data('type'),
                         pos = {
                             x: event.pageX,
                             y: event.pageY,
-                            offsetX: Number(item.attr('data-offset-x')),
-                            offsetY: Number(item.attr('data-offset-y'))
-                        }, x, y;
+                            offsetX: Number(item.data('offset-x')),
+                            offsetY: Number(item.data('offset-y'))
+                        }, x, y,handleX,handleY,itemW,itemH;
                     if (pos.x < 0 || pos.y < 0) return dragEnd(event);
+
                     switch (type) {
                         case 'vr':
                             self.css({left: pos.x});
@@ -123,13 +177,52 @@
                             self.css({top: y, left: x});
                             self.find('.label').html(x + ', ' + y);
                             break;
+                        case 'handle-n':
+                             handleY =pos.y - selectedItem.position().top + 5,
+                                itemH = selectedItem.height() - handleY ;
+                            if(itemH<11) return ;
+                            selectedItem.css({
+                                top:pos.y + 5,
+                                height:itemH
+                            });
+                        break;
+                        case 'handle-w':
+                             handleX =pos.x - selectedItem.position().left + 5,
+                                itemW = selectedItem.width() - handleX ;
+                            if(itemW<11) return ;
+                            selectedItem.css({
+                                left:pos.x + 5,
+                                width:itemW
+                            });
+                            break;
+                        case 'handle-s':
+                             handleY =pos.y  - selectedItem.position().top ,
+                                itemH =  handleY + 5;
+                            if(itemH<11) return ;
+                            selectedItem.css({
+                                height:itemH
+                            });
+
+                            break;
+                        case 'handle-e':
+                             handleX =pos.x  - selectedItem.position().left ,
+                                itemW =  handleX + 5;
+
+                            if(itemW<11) return ;
+                            selectedItem.css({
+                                width:itemW
+                            });
+
+
+                            break;
                         default:
                             x = pos.x + pos.offsetX;
                             y = pos.y + pos.offsetY;
                             self.css({top: y, left: x});
 
                     }
-                    actions.updateProperties(self);
+//:TODO update position of all handles
+                    actions.updateProperties();
                 }
 
                 function dragEnd() {
@@ -191,7 +284,27 @@
                 }
 
 
+            },
+            'resizable': function () {
+                var self = this;
+
+                var w = self.width(), // get container width
+                    h = self.height(), // get container height
+                /* prepare handles, set type and class attributes as well as initial positions*/
+                    up = $('<div/>').addClass('rs-n').data('type', 'handle-n'),
+                    right = $('<div/>').addClass('rs-w').data('type', 'handle-w'),
+                    bottom = $('<div/>').addClass('rs-s').data('type', 'handle-s'),
+                    left = $('<div/>').addClass('rs-e').data('type', 'handle-e');
+                actions.draggable.call(up);
+                actions.draggable.call(right);
+                actions.draggable.call(bottom);
+                actions.draggable.call(left);
+                self.append(up);
+                self.append(right);
+                self.append(bottom);
+                self.append(left);
             }
+
 
         },
         RULER = {};
@@ -255,7 +368,7 @@
     RULER._toolHorizontalLine = function () {
         var self = this,
             button = $('<button/>');
-
+        resizableItems.hr = false; // Register As not resizable
         return button.on('click', function () {
             var el = actions.newItem('hr');
             elements.workspace.append(el);
@@ -269,6 +382,7 @@
     RULER._toolVerticalLine = function () {
         var self = this,
             button = $('<button/>');
+        resizableItems.vr = false; // Register As not resizable
         return button.on('click', function () {
             var el = actions.newItem('vr');
             elements.workspace.append(el);
@@ -280,8 +394,9 @@
             });
     };
     RULER._toolSquare = function () {
-        var self = this;
-        var button = $('<button/>');
+        var self = this,
+            button = $('<button/>');
+        resizableItems.square = true; // Register As  resizable
         return button.on('click', function () {
             var el = actions.newItem('square');
             elements.workspace.append(el);
@@ -300,6 +415,7 @@
     RULER._toolCircle = function () {
         var self = this;
         var button = $('<button/>');
+        resizableItems.circle = true; // Register As  resizable
         return button.on('click', function () {
             var el = actions.newItem('circle');
             elements.workspace.append(el);
@@ -317,12 +433,31 @@
                 title: 'Draw a Circle'
             });
     };
+    RULER._toolText=function(){
+      var self=this;
+        var button = $('<button/>');
+        resizableItems.text = true; // Register As  resizable
+        return button.on('click', function () {
+            var el = actions.newItem('text');
+            elements.workspace.append(el);
+            self.addLayer(el);
+            actions.draggable.call(el);
+        })
+            .append($('<div/>').css({
+                display: 'inline-block'
+            })
+                .html('T'))
+            .attr({
+                title: 'Create Textfield'
+            });
+    };
     RULER._addTools = function () {
         var self = this;
         elements.tools.append(self._toolHorizontalLine());
         elements.tools.append(self._toolVerticalLine());
         elements.tools.append(self._toolSquare());
         elements.tools.append(self._toolCircle());
+        elements.tools.append(self._toolText());
     };
     RULER._prepareLayersBox = function () {
         elements.layersBox = $('<div/>')
@@ -348,7 +483,7 @@
         var selectItem = function () {
 
                 var parent = $(this).parent('ul'),
-                    targetID = '#' + parent.attr('data-target');
+                    targetID = '#' + parent.data('target');
                 actions.deSelectTarget(targetID);
                 if (parent.hasClass('selected')) {
                     parent.removeClass('selected');
@@ -356,12 +491,12 @@
                 }
                 $('.layers ul').removeClass('selected');
                 parent.addClass('selected');
-                //:TODO select target
+
                 actions.selectTarget(targetID);
             },
             removeItem = function () {
                 var parent = $(this).parent('ul'),
-                    targetID = '#' + parent.attr('data-target');
+                    targetID = '#' + parent.data('target');
                 parent.remove();
                 $(targetID).remove();
                 elements.propsbox.hide();
@@ -369,7 +504,7 @@
             },
             hideItem = function () {
                 var parent = $(this).parent('ul'),
-                    targetID = '#' + parent.attr('data-target');
+                    targetID = '#' + parent.data('target');
                 if ($(this).hasClass('off')) {
                     $(this).removeClass('off');
                     $(targetID).show();
@@ -380,8 +515,8 @@
                 }
             };
         var ul = $('<ul/>').attr({'data-target': el.attr('id')}),
-            visibility = $('<li/>').addClass('btn visibility').attr({title: 'Hide'}).on('click', hideItem).css({'background-color': '#' + el.attr('data-color')}),
-            label = $('<li/>').addClass('label').html(el.attr('data-type')).on('click', selectItem),
+            visibility = $('<li/>').addClass('btn visibility').attr({title: 'Hide'}).on('click', hideItem).css({'background-color': '#' + el.data('color')}),
+            label = $('<li/>').addClass('label').html(el.data('type')).on('click', selectItem),
             remove = $('<li/>').addClass('btn remove').html('&times;').attr({title: 'Remove'}).on('click', removeItem);
 
         el.on('click', function () {
@@ -422,3 +557,15 @@
     RULER.init();
 
 })(Zepto);
+/** TODO:
+ * 1- set selected item as resizable
+ * 2- resize with up-down, right-left keys
+ * 3- resize with drag-helpers
+ * 4- Convertable to Canvas
+ * 5- Printable
+ * 6- extend Properties :
+ *  - line style : dotted-dashed
+ *  - line-widths
+ * 7- Screen-Shot
+ * 8- Send as email
+ */
