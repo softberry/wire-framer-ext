@@ -8,9 +8,11 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     cssNano = require('gulp-cssnano'),
     concat = require('gulp-concat'),
-    rename = require('gulp-rename');
+    rename = require('gulp-rename'),
+    shell = require('gulp-shell'),
+    clean = require('gulp-clean');
 gulp.task('js', function () {
-    gulp.src(['./src/zepto.js', './src/main.js'])
+    gulp.src(['./src/zepto.js','./src/zepto-custom.js', './src/main.js'])
         .pipe(concat('main.min.js'))
         .pipe(gulp.dest('./dist/'))
         .pipe(livereload());
@@ -31,4 +33,5 @@ gulp.task('watch', function () {
     gulp.watch('src/*.js', ['js']);
     gulp.watch('src/*.scss', ['css']);
 });
-gulp.task('default', ['watch','css','js']);
+
+gulp.task('default', ['watch', 'css', 'js']);

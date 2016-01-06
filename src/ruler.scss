@@ -4,26 +4,35 @@ $headerBG: #333333;
 $headerColor: #ffcc99;
 $toolButtonColor: #eeeeee;
 $toolButtonBG: #444444;
-#chrome-ruler {
+chrome-ruler {
   font-size: 10px;
   font-family: "Lucida Grande", "Trebuchet MS", sans-serif;
   position: absolute;
   left: 0;
-  top:0;
+  top: 0;
   z-index: 99999999999;
   width: 100%;
   height: 100%;
-  .toolbox, .layers, .props {
+  // background: rgba($headerColor,.2);
+  * {
+    background-color: transparent;
+    font-size: 1em;
+    font-family: "Lucida Grande", "Trebuchet MS", sans-serif;
+  }
+  &.draw {
+    cursor: crosshair;
+  }
+  toolbox, layers, props {
     min-width: 74px;
     position: absolute;
     left: 20px;
-    top: 20px;
+    top: 0;
     background-color: $toolboxBG;
     box-shadow: 0 0 16px 1px $boxShadow;
     z-index: 999;
     user-select: none;
     padding-bottom: 4px;
-    .header {
+    title {
       font-size: 1em;
       font-weight: bold;
       left: 0;
@@ -56,10 +65,10 @@ $toolButtonBG: #444444;
       transform: rotate(0deg);
     }
   }
-  .tools {
+  tools {
     max-width: 72px;
     margin: 0 auto;
-
+    display: inline-block;
     button {
       width: 32px;
       height: 32px;
@@ -79,13 +88,14 @@ $toolButtonBG: #444444;
   .item:hover .label {
     display: inline-block;
   }
-  .item.resizable{}
+
   .item {
     box-sizing: border-box;
     position: absolute;
     user-select: none;
-    &.resizable{
-      div[class^=rs-]{
+    &.resizable {
+      handle {
+        display: block;
         width: 5px;
         height: 5px;
         border: #000 1px solid;
@@ -104,15 +114,18 @@ $toolButtonBG: #444444;
       position: absolute;
       font-size: .8em;
     }
-    div[class^=rs-]{
+    div[class^=rs-] {
       display: none;
     }
 
-
-    .rs-n,.rs-s{      cursor: ns-resize;    }
-    .rs-e,.rs-w{      cursor: ew-resize;    }
+    .rs-n, .rs-s {
+      cursor: ns-resize;
+    }
+    .rs-e, .rs-w {
+      cursor: ew-resize;
+    }
   }
-  .hr {
+  .hline {
 
     left: 0;
     top: 50px;
@@ -127,7 +140,7 @@ $toolButtonBG: #444444;
     }
 
   }
-  .vr {
+  .vline {
     left: 50px;
     top: 0;
     height: 100%;
@@ -139,7 +152,7 @@ $toolButtonBG: #444444;
       margin-top: 1em;
     }
   }
-  .item.square, .item.circle {
+  square, circle {
     position: absolute;
     left: 100px;
     top: 100px;
@@ -152,28 +165,35 @@ $toolButtonBG: #444444;
       margin-top: -1.4em;
     }
   }
-  .item.circle {
+  circle {
     border-radius: 50%;
   }
-  .item.text{
+  text {
     display: inline-block;
     min-width: 60px;
     height: auto;
-    .editable{
+    font-size: 1.4em;
+    .editable {
       display: block;
       width: 100%;
       height: 100%;
     }
+    &.resizable {
+      border: 1px dotted;
+    }
 
   }
-  .layers {
+  layers {
     min-width: 160px;
+    position: absolute;
+    left: 200px;
+    top: 0;
     ul.selected {
       border-left: $headerColor 4px inset;
       box-sizing: border-box;
       li.label {
         font-weight: bold;
-        background-color: rgba($headerColor,.1);
+        background-color: rgba($headerColor, .1);
       }
     }
     ul {
@@ -184,8 +204,8 @@ $toolButtonBG: #444444;
 
       box-sizing: border-box;
       .btn {
-        width: 2em;
-        height: 2em;
+        width: 20px;
+        height: 20px;
         cursor: pointer;
       }
       li {
@@ -215,20 +235,33 @@ $toolButtonBG: #444444;
 
     }
   }
-  .props {
-    left: 200px;
-    min-width: 160px;
-    table {
-      width: 160px;
+  props {
+    left: 400px;
+    top: 0;
+    position: absolute;
+    props-table {
+      display: inline-block;
       color: #cccccc;
       font-size: 10px;
-
+      margin: 0 10px;
+      props-tr {
+        display: flex;
+        flex-direction: row;
+        margin: 1px;
+        props-td {
+          flex-grow: 1;
+          min-width: 40px;
+        }
+      }
       input[type="text"] {
         border: none;
         background-color: transparent;
         color: #cccccc;
-        width: 100%;
+        //width: 100%;
         font-size: 10px;
+        display: inline !important;
+        width: 20px;
+        float: left;
       }
     }
   }
