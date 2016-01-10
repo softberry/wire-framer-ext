@@ -20,6 +20,8 @@
     "gulp-rename": "1.2.0",
     "gulp-concat": "^2.6.0",
     "gulp-shell": "^0.5.1",
+    "gulp-zip": "^3.0.2",
+    "gulp-strip-debug": "^1.1.0",
     "gulp-clean": "^0.3.1"
   },
   "keywords": [],

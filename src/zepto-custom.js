@@ -3,7 +3,6 @@
  */
 ;(function($){
     $.fn.select = function(){
-        console.log(this);
         var self =this;
         var range = document.createRange();
         range.selectNodeContents(self[0]);
@@ -11,5 +10,5 @@
         sel.removeAllRanges();
         sel.addRange(range);
         return self;
-    }
+    };
 })(Zepto);

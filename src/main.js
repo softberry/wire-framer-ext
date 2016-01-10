@@ -10,6 +10,7 @@
              All DOM Elements used as containers.
              Shorthand variables for re-usability
              */
+
             workspace: {},
             toolbox: {},
             propsbox: {},
@@ -20,11 +21,13 @@
             layers: {},
             items: {},
             propsTable: {}
+
         },
-        uniqueID = 0, /* each elements like lines and squares has a uniqueID.
+        uniqueID = 0, /* each element like a line or a square has a uniqueID.
      Automatically increased before a new Item inserted */
         selectedItem = null, // shortcut to current selected Item on the stage
         resizableItems = {},
+        draggableItems = {},
         actions = {
             // Repeated functions served to RULER object
             'highestIndex': function () {
@@ -37,11 +40,13 @@
                 });
                 return i;
             },
+            'createElementOnSTage':{},
             'newItem': function (type) {
                 /*
                  * return a new DIV element,
                  * with default properties according to requested type
                  * */
+
 
                 uniqueID++; // Increase ID
                 var label = $('<div/>').addClass('label').html(''),                         //create label for the element
@@ -49,34 +54,7 @@
 
                 color += String('000000').slice(color.length); // fill unsufficent hexCode with 000000
                 var el = $('<' + type + '/>'); //prepare and return requested type of item
-                switch (type) {
-                    case 'circle':
-                    case 'square': // surfaces has border color only
-                        el.css({
-                            'border-color': '#' + color,
-                            left: elements.workspace.width() / 2,
-                            top: elements.workspace.height() / 2
-                        });
-                        break;
-                    case 'text':
-                        var editableText = $('<div/>')
-                            .attr('contentEditable', 'true')
-                            .html('Type here')
-                            .addClass('editable');
-                        el
-                            .css({
-                                'border-color': '#' + color,
-                                left: elements.workspace.width() / 2,
-                                top: elements.workspace.height() / 2
-                            })
-                            .append(editableText);
-                        setTimeout(function(){editableText.focus().select();},200);
-                       // el.trigger('click');
-
-                        break;
-                    default: // lines has backgroundcolor only
-                        el.css({'background-color': '#' + color});
-                }
+                    el.append(actions.createElementOnSTage[type](color));
 
                 el.attr({id: 'item-' + uniqueID, 'data-type': type, 'data-color': color})
                     .addClass('item ' + type)
@@ -355,6 +333,7 @@
             }
         },
         RULER = {};
+
     RULER.init = function () {
         if ($('chrome-ruler').length == 1) {
             $('chrome-ruler').toggle();
@@ -367,7 +346,7 @@
         console.log('create Workspace. Body : ', $('body'));
         $('body').append(elements.workspace);
         self._prepareToolBox();
-        self._addTools();
+      //  self._addTools();
         self._prepareLayersBox();
         self._preparePropsBox();
         self._assignEvents();
@@ -403,15 +382,58 @@
             event.preventDefault();
 
         });
-        $(window).on('keyup', function () {
+        $(window).on('keydown', function () {
+            console.log(event.which);
+            var type = selectedItem != null ? selectedItem.data('type') : '';
             if (selectedItem != null && event.which == 27) {
                 //deselect on ESC
                 actions.deSelectTarget();
             }
             if(event.ctrlKey && event.which == 83){
                 event.preventDefault();
+                console.log('show save as...');
             /* show save as dialog*/
-            };
+            }
+            if (selectedItem != null && event.which == 40) {
+                event.preventDefault();
+               if  (String(draggableItems[type]).toUpperCase().indexOf('Y') < 0) return;
+                var y = selectedItem.position().top;
+                event.shiftKey?y+=5:y++;
+                selectedItem.css({
+                    top:y
+                });
+            }
+            if (selectedItem != null && event.which == 38) {
+                //deselect on ESC
+                event.preventDefault();
+                if  (String(draggableItems[type]).toUpperCase().indexOf('Y') < 0) return;
+                var y = selectedItem.position().top;
+                event.shiftKey?y-=5:y--;
+                selectedItem.css({
+                    top:y
+                });
+
+            }
+
+            if (selectedItem != null && event.which == 37) {
+                event.preventDefault();
+                if  (String(draggableItems[type]).toUpperCase().indexOf('X') < 0) return;
+                var x = selectedItem.position().left;
+                event.shiftKey?x-=5:x--;
+                selectedItem.css({
+                    left:x
+                });
+            }
+            if (selectedItem != null && event.which == 39) {
+                event.preventDefault();
+                if  (String(draggableItems[type]).toUpperCase().indexOf('X') < 0) return;
+                var x = selectedItem.position().left;
+                event.shiftKey?x+=5:x++;
+                selectedItem.css({
+                    left:x
+                });
+            }
+            actions.updateProperties();
 
         });
         $(window).on('resize scroll', function () {
@@ -435,90 +457,25 @@
         elements.workspace.append(elements.toolbox);
 
     };
-    RULER._toolHorizontalLine = function () {
-        var self = this,
-            button = $('<button/>');
-        resizableItems.hline = false; // Register As not resizable
-        return button.on('click', function () {
-            event.stopPropagation();
-            elements.workspace.addClass('draw').data('type','hline');
-           })
-            .html('&mdash;').attr({
-                title: 'Draw a horizontal line'
-            });
-    };
-    RULER._toolVerticalLine = function () {
-        var self = this,
-            button = $('<button/>');
-        resizableItems.hline = false; // Register As not resizable
-        return button.on('click', function () {
-            event.stopPropagation();
-            elements.workspace.addClass('draw').data('type','vline');
-           })
-            .html('|').attr({
-                title: 'Draw a Vertical line'
-            });
-    };
-    RULER._toolSquare = function () {
-        var self = this,
-            button = $('<button/>');
-        resizableItems.square = true; // Register As  resizable
-        return button.on('click', function () {
-            event.stopPropagation();
-            elements.workspace.addClass('draw').data('type','square');
-        })
-            .append($('<div/>').css({
-                border: '1px solid',
-                display: 'inline-block',
-                width: '80%',
-                height: '40%'
-            })).attr({
-                title: 'Draw a Square'
-            });
-    };
-    RULER._toolCircle = function () {
-        var self = this;
+    RULER.addTool=function(tool){
+        resizableItems[tool.type] = tool.resizable;
+        draggableItems[tool.type] = tool.draggable;
         var button = $('<button/>');
-        resizableItems.circle = true; // Register As  resizable
-        return button.on('click', function () {
-            event.stopPropagation();
-            elements.workspace.addClass('draw').data('type','circle');
-
-        })
-            .append($('<div/>').css({
-                border: '1px solid',
-                display: 'inline-block',
-                width: '16px',
-                height: '16px',
-                borderRadius: '50%'
-            }))
-            .attr({
-                title: 'Draw a Circle'
-            });
-    };
-    RULER._toolText = function () {
-        var self = this;
-        var button = $('<button/>');
-        resizableItems.text = true; // Register As  resizable
-        return button.on('click', function () {
-            event.stopPropagation();
-            elements.workspace.addClass('draw').data('type','text');
-        })
-            .append($('<div/>').css({
-                display: 'inline-block'
+        button
+            .on('click',function(){
+                event.stopPropagation();
+                elements.workspace.addClass('draw').data('type',tool.type);
             })
-                .html('T'))
+            .on('click',tool.button.onclick)
+            .html(tool.button.html)
             .attr({
-                title: 'Create Textfield'
+                title : tool.button.tooltip
             });
-    };
-    RULER._addTools = function () {
-        var self = this;
-        elements.tools.append(self._toolHorizontalLine());
-        elements.tools.append(self._toolVerticalLine());
-        elements.tools.append(self._toolSquare());
-        elements.tools.append(self._toolCircle());
-        elements.tools.append(self._toolText());
+        console.log(tool.type);
+
+        actions.createElementOnSTage[tool.type] = tool.target.content;
+        elements.tools.append(button);
+
     };
     RULER._prepareLayersBox = function () {
         elements.layersBox = $('<layers/>')
