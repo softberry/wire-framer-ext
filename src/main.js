@@ -79,7 +79,7 @@
                 el
                     .attr({"data-left": pos.x, "data-top": pos.y})
                     .css({left: pos.x, top: pos.y});
-                console.log('guide : ', elements.workspace);
+
             },
             'updateGuide': function (pos) {
 
@@ -390,6 +390,46 @@
                 self.append(right);
                 self.append(bottom);
                 self.append(left);
+            },
+            'stickPanel': function (stickTo) {
+                if($(this).hasClass('selected')) return;
+
+                $('sticky').removeClass('selected');
+
+                $(event.target).addClass('selected');
+                var w, h, l, t, r, b;
+                if (stickTo == 'left' || stickTo == 'right') {
+                    w = 200;
+                    h = '100%';
+                }
+                if (stickTo == 'top' || stickTo == 'bottom') {
+                    w = '100%';
+                    h = 200;
+                }
+                if (stickTo == 'right') {
+                    r = 0;
+                    l = 'auto';
+                } else {
+                    r = 'auto';
+                    l = 0;
+                }
+                if (stickTo == 'bottom') {
+                    b = 0;
+                    t = 'auto';
+                } else {
+                    b = 'auto';
+                    t = 0;
+                }
+                elements.panel.css(
+                    {
+                        width: w,
+                        height: h,
+                        left: l,
+                        top: t,
+                        right: r,
+                        bottom: b
+                    }
+                )
             }
         },
         RULER = {};
@@ -403,7 +443,7 @@
         var self = this;
         elements.workspace = $('<chrome-ruler/>');
         elements.workspace.attr('id', 'chrome-ruler').css({zIndex: actions.highestIndex()});
-        // console.log('create Workspace. Body : ', $('body'));
+
         $('body').append(elements.workspace);
         self.preparePanel();
         self._prepareToolBox();
@@ -413,14 +453,30 @@
         self._assignEvents();
         // actions.draggable.call(elements.toolbox);
         //  actions.draggable.call(elements.layersBox);
-      //  actions.draggable.call(elements.propsbox);
+        //  actions.draggable.call(elements.propsbox);
 
         elements.layersBox.hide();
 
     };
     RULER.preparePanel = function () {
-        elements.panel = $('<panel/>');
+        elements.panel = $('<panel/>')
+            .data('type', 'panel');
+        var title = $('<title/>');
 
+        title
+            .append($('<sticky/>').addClass('selected').on('click', function () {
+                actions.stickPanel('left')
+            }))
+            .append($('<sticky/>').on('click', function () {
+                actions.stickPanel('top')
+            }))
+            .append($('<sticky/>').on('click', function () {
+                actions.stickPanel('right')
+            }))
+            .append($('<sticky/>').on('click', function () {
+                actions.stickPanel('bottom')
+            }));
+        elements.panel.append(title);
         elements.workspace.append(elements.panel);
     };
     RULER._assignEvents = function () {
@@ -464,7 +520,7 @@
 
         });
         $(window).on('keydown', function () {
-            console.log(event.which);
+
             var type = selectedItem != null ? selectedItem.data('type') : '';
             if (selectedItem != null && event.which == 27) {
                 //deselect on ESC
@@ -552,7 +608,7 @@
             .attr({
                 title: tool.button.tooltip
             });
-        console.log(tool.type);
+
 
         actions.createElementOnSTage[tool.type] = tool.target.content;
         elements.tools.append(button);
