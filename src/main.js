@@ -12,6 +12,7 @@
              */
 
             workspace: {},
+            panel: {},
             toolbox: {},
             propsbox: {},
             hRuler: {},
@@ -40,7 +41,7 @@
                 });
                 return i;
             },
-            'createElementOnSTage':{},
+            'createElementOnSTage': {},
             'newItem': function (type) {
                 /*
                  * return a new DIV element,
@@ -54,7 +55,7 @@
 
                 color += String('000000').slice(color.length); // fill unsufficent hexCode with 000000
                 var el = $('<' + type + '/>'); //prepare and return requested type of item
-                    el.append(actions.createElementOnSTage[type](color));
+                el.append(actions.createElementOnSTage[type](color));
 
                 el.attr({id: 'item-' + uniqueID, 'data-type': type, 'data-color': color})
                     .addClass('item ' + type)
@@ -65,31 +66,90 @@
                 }
                 return el;
             },
-            'drawAt':function(pos){
-                var self=this;
+            'drawGuide': function (pos) {
 
-                    if(!elements.workspace.hasClass('draw')) return;
-                var  type =elements.workspace.data('type'),
-                    el = actions.newItem(type);
+                if (!elements.workspace.hasClass('draw')) return;
+                elements.panel.css({
+                    opacity: .1
+                });
+                var type = elements.workspace.data('type'),
+                    el = $('<guide/>')
+                        .addClass(type);
                 elements.workspace.append(el);
-                self.addLayer(el);
-                actions.draggable.call(el);
-                switch(type){
+                el
+                    .attr({"data-left": pos.x, "data-top": pos.y})
+                    .css({left: pos.x, top: pos.y});
+                console.log('guide : ', elements.workspace);
+            },
+            'updateGuide': function (pos) {
+
+                var guide = $('guide'),
+                    l = guide.attr('data-left'),
+                    t = guide.attr('data-top'),
+                    w = pos.x - l,
+                    h = pos.y - t,
+                    type = elements.workspace.data('type');
+                /**
+                 * update guide position on the stage according to its type
+                 */
+                switch (type) {
                     case 'hline':
-                        el.css({top:pos.y});
+                        $(guide).css({top: pos.y, left: 0});
                         break;
                     case 'vline':
-                        el.css({left:pos.x});
+                        guide.css({left: pos.x, top: 0});
                         break;
                     case 'square':
                     case 'circle':
                     case 'text' :
-                        el.css({left: pos.x - el.width() / 2 , top:pos.y - el.height()/2});
+                        //el.css({left: pos.x - el.width() / 2, top: pos.y - el.height() / 2});
+                        guide.css({
+                            width: Math.abs(w),
+                            height: Math.abs(h),
+                            left: pos.x < l ? pos.x : l,
+                            top: pos.y < t ? pos.y : t
+                        });
                         break;
                     default:
                 }
-                elements.workspace.removeClass('draw');
 
+            },
+            'drawAt': function (pos) {
+                var self = this,
+                    guide = $('guide');
+
+                if (!elements.workspace.hasClass('draw')) return;
+                var type = elements.workspace.data('type'),
+                    el = actions.newItem(type);
+                elements.workspace.append(el);
+                self.addLayer(el);
+                actions.draggable.call(el);
+                switch (type) {
+                    case 'hline':
+                        el.css({top: pos.y});
+                        break;
+                    case 'vline':
+                        el.css({left: pos.x});
+                        break;
+                    case 'square':
+                    case 'circle':
+                    case 'text' :
+                        //el.css({left: pos.x - el.width() / 2, top: pos.y - el.height() / 2});
+                        el.css({
+                            left: guide.css('left'),
+                            top: guide.css('top'),
+                            width: guide.css('width'),
+                            height: guide.css('height')
+                        });
+                        break;
+                    default:
+                }
+                elements.workspace.
+                    removeClass('draw');
+                guide.remove();
+                elements.panel.css({
+                    opacity: 1
+                });
             },
             'updateProperties': function () {
                 /*
@@ -343,22 +403,28 @@
         var self = this;
         elements.workspace = $('<chrome-ruler/>');
         elements.workspace.attr('id', 'chrome-ruler').css({zIndex: actions.highestIndex()});
-        console.log('create Workspace. Body : ', $('body'));
+        // console.log('create Workspace. Body : ', $('body'));
         $('body').append(elements.workspace);
+        self.preparePanel();
         self._prepareToolBox();
-      //  self._addTools();
+        //  self._addTools();
         self._prepareLayersBox();
         self._preparePropsBox();
         self._assignEvents();
-        actions.draggable.call(elements.toolbox);
-        actions.draggable.call(elements.layersBox);
-        actions.draggable.call(elements.propsbox);
+        // actions.draggable.call(elements.toolbox);
+        //  actions.draggable.call(elements.layersBox);
+      //  actions.draggable.call(elements.propsbox);
 
         elements.layersBox.hide();
 
     };
+    RULER.preparePanel = function () {
+        elements.panel = $('<panel/>');
+
+        elements.workspace.append(elements.panel);
+    };
     RULER._assignEvents = function () {
-        var self=this;
+        var self = this;
         $('.toggle').on('click', function () {
             $(this).parent().next().toggle();
             $(this).hasClass('collapsed') ? $(this).removeClass('collapsed') : $(this).addClass('collapsed');
@@ -376,7 +442,22 @@
         elements.propsTable.height.on('blur', actions.resizeH).on('keydown', function () {
             actions.keySetVal.call(this, actions.resizeH)
         });
-        elements.workspace.on('click',function(){actions.drawAt.call(self,{x:event.pageX,y:event.pageY})});
+        elements.workspace.on('click', function () {
+            //   actions.drawAt.call(self, {x: event.pageX, y: event.pageY})
+        });
+        elements.workspace.on('mousedown', function () {
+            //   actions.drawAt.call(self, {x: event.pageX, y: event.pageY})
+            actions.drawGuide.call(self, {x: event.pageX, y: event.pageY});
+        });
+        elements.workspace.on('mousemove', function () {
+            //   actions.drawAt.call(self, {x: event.pageX, y: event.pageY})
+            actions.updateGuide.call(self, {x: event.pageX, y: event.pageY});
+        });
+        elements.workspace.on('mouseup', function () {
+            actions.drawAt.call(self, {x: event.pageX, y: event.pageY})
+        });
+
+
         $('chrome-ruler').on('contextmenu', function () {
             // disable context menu
             event.preventDefault();
@@ -389,48 +470,48 @@
                 //deselect on ESC
                 actions.deSelectTarget();
             }
-            if(event.ctrlKey && event.which == 83){
+            if (event.ctrlKey && event.which == 83) {
                 event.preventDefault();
                 console.log('show save as...');
-            /* show save as dialog*/
+                /* show save as dialog*/
             }
             if (selectedItem != null && event.which == 40) {
                 event.preventDefault();
-               if  (String(draggableItems[type]).toUpperCase().indexOf('Y') < 0) return;
+                if (String(draggableItems[type]).toUpperCase().indexOf('Y') < 0) return;
                 var y = selectedItem.position().top;
-                event.shiftKey?y+=5:y++;
+                event.shiftKey ? y += 5 : y++;
                 selectedItem.css({
-                    top:y
+                    top: y
                 });
             }
             if (selectedItem != null && event.which == 38) {
                 //deselect on ESC
                 event.preventDefault();
-                if  (String(draggableItems[type]).toUpperCase().indexOf('Y') < 0) return;
+                if (String(draggableItems[type]).toUpperCase().indexOf('Y') < 0) return;
                 var y = selectedItem.position().top;
-                event.shiftKey?y-=5:y--;
+                event.shiftKey ? y -= 5 : y--;
                 selectedItem.css({
-                    top:y
+                    top: y
                 });
 
             }
 
             if (selectedItem != null && event.which == 37) {
                 event.preventDefault();
-                if  (String(draggableItems[type]).toUpperCase().indexOf('X') < 0) return;
+                if (String(draggableItems[type]).toUpperCase().indexOf('X') < 0) return;
                 var x = selectedItem.position().left;
-                event.shiftKey?x-=5:x--;
+                event.shiftKey ? x -= 5 : x--;
                 selectedItem.css({
-                    left:x
+                    left: x
                 });
             }
             if (selectedItem != null && event.which == 39) {
                 event.preventDefault();
-                if  (String(draggableItems[type]).toUpperCase().indexOf('X') < 0) return;
+                if (String(draggableItems[type]).toUpperCase().indexOf('X') < 0) return;
                 var x = selectedItem.position().left;
-                event.shiftKey?x+=5:x++;
+                event.shiftKey ? x += 5 : x++;
                 selectedItem.css({
-                    left:x
+                    left: x
                 });
             }
             actions.updateProperties();
@@ -454,22 +535,22 @@
         elements.tools = $('<tools/>')
         elements.toolbox.append(header);
         elements.toolbox.append(elements.tools);
-        elements.workspace.append(elements.toolbox);
+        elements.panel.append(elements.toolbox);
 
     };
-    RULER.addTool=function(tool){
+    RULER.addTool = function (tool) {
         resizableItems[tool.type] = tool.resizable;
         draggableItems[tool.type] = tool.draggable;
         var button = $('<button/>');
         button
-            .on('click',function(){
+            .on('click', function () {
                 event.stopPropagation();
-                elements.workspace.addClass('draw').data('type',tool.type);
+                elements.workspace.addClass('draw').data('type', tool.type);
             })
-            .on('click',tool.button.onclick)
+            .on('click', tool.button.onclick)
             .html(tool.button.html)
             .attr({
-                title : tool.button.tooltip
+                title: tool.button.tooltip
             });
         console.log(tool.type);
 
@@ -487,12 +568,8 @@
         elements.layers = $('<div/>');
         elements.layersBox.append(header);
         elements.layersBox.append(elements.layers);
-        elements.workspace.append(elements.layersBox);
+        elements.panel.append(elements.layersBox);
 
-        elements.layersBox.css({
-            top: 0,
-            left: elements.toolbox.position().left + elements.toolbox.width() + 20
-        });
     };
     RULER.addLayer = function (el) {
         actions.updateProperties(el);
@@ -573,7 +650,7 @@
 
         elements.propsbox.append(header);
         elements.propsbox.append(table);
-        elements.workspace.append(elements.propsbox);
+        elements.panel.append(elements.propsbox);
         elements.propsTable.xpos = $('.props input[name=xpos]');
         elements.propsTable.ypos = $('.props input[name=ypos]');
         elements.propsTable.width = $('.props input[name=width]');
