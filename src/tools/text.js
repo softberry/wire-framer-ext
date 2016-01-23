@@ -22,12 +22,12 @@
             "top", "width", "height", "background-color", "opacity"
         ],
         "button": {
-            "html": "T",
+            "html": "<tool-icon style='width: 60%; height: 45%; font-size:20px; line-height: 60%;'>T</tool-icon>",
             "tooltip": "Create a Textfield",
             "Name": "Textbox",
 
             "onclick": function () {
-                console.log('additional click events');
+                // custom click event
             }
         },
         "target": {

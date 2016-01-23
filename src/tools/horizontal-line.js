@@ -22,12 +22,12 @@
             "top", "width", "height", "background-color", "opacity"
         ],
         "button": {
-            "html": "&mdash;",
+            "html": "<tool-icon style='width: 60%; height: 1px; background-color: white;'></tool-icon>",
             "tooltip": "Draw a Line",
             "Name": "Horizontal line",
 
             "onclick": function () {
-                console.log('additional click events');
+                // custom click event
             }
         },
         "target":{

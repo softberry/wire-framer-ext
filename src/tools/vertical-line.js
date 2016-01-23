@@ -22,17 +22,16 @@
             "top", "width", "height", "background-color", "opacity"
         ],
         "button": {
-            "html": "|",
+            "html": "<tool-icon style='width:1px; height: 60%; background-color: white;'></tool-icon>",
             "tooltip": "Draw a Horizontal Line",
             "Name": "Horizontal line",
 
             "onclick": function () {
-                console.log('additional click events');
+                // custom click event
             }
         },
         "target":{
             "content":function(color){
-                console.log(color);
                 return $('<div/>')
                     .css({
                         'background-color':'#' + color,

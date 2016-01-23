@@ -144,8 +144,6 @@
                         break;
                     default:
                 }
-                elements.workspace.
-                    removeClass('draw');
                 guide.remove();
                 elements.panel.css({
                     opacity: 1
@@ -177,7 +175,7 @@
                 }
             },
             'selectTarget': function (target) {
-
+                if (elements.workspace.hasClass('draw')) return;
                 selectedItem = $(target);
                 /* Set givenID as selected Item */
                 actions.updateProperties();
@@ -217,6 +215,8 @@
                 var self = this;
                 $('.draggable').removeClass('draggable');
                 function dragStart() {
+                    // if draw pen is active do not drag any element on workspace
+                    if (elements.workspace.hasClass('draw')) return;
                     // draggable element on mousedown function
                     event.stopPropagation();
                     var self = $(this),
@@ -322,33 +322,83 @@
             },
             'moveOnX': function () {
                 // Change X position of an element allow negative numbers too
-                var val = elements.propsTable.xpos.val();
-                val = String(val).replace(/[^0-9\-]/g, '');
-                elements.propsTable.xpos.val(val);
-                $(selectedItem).css({left: val + 'px'});
+                //var val = elements.propsTable.xpos.val();
+                //val = String(val).replace(/[^0-9\-]/g, '');
+                //elements.propsTable.xpos.val(val);
+                // $(selectedItem).css({left: val + 'px'});
+
+                /**
+                 * use arrow events assigned to window element,
+                 * when a property (x,y,w,h) changed
+                 *
+                 */
+
+        if(event.which == 37 || event.which == 39 ) {
+            event.stopPropagation();
+        }
+                /* convert left-right arrows to up-down arrows */
+                if(event.which == 38 || event.which == 40 ) {
+                    event.stopPropagation();
+                   // console.log(event.which);
+                   var e= $.Event('keydown',{which:event.which==38?39:37}) ;
+                    $(window).trigger(e);
+                }
+
+
             },
             'moveOnY': function () {
                 // Change Y position of an element  allow negative numbers too
-                var val = elements.propsTable.ypos.val();
-                val = String(val).replace(/[^0-9\-]/g, '');
-                elements.propsTable.ypos.val(val);
-                $(selectedItem).css({top: val + 'px'});
+               // var val = elements.propsTable.ypos.val();
+                //val = String(val).replace(/[^0-9\-]/g, '');
+                //elements.propsTable.ypos.val(val);
+                //$(selectedItem).css({top: val + 'px'});
+                if(event.which == 37 || event.which == 39 ) {
+                    // avoid moves on X-axis
+                    event.stopPropagation();
+                }
+
             },
             'resizeW': function () {
                 // Change Width  of an element DONOT allow negative numbers
-                var val = elements.propsTable.width.val();
-                val = String(val).replace(/[^0-9]/g, '');
-                elements.propsTable.width.val(val);
-                $(selectedItem).css({width: val + 'px'});
-                actions.updateProperties();
+               // var val = elements.propsTable.width.val();
+               // val = String(val).replace(/[^0-9]/g, '');
+               // elements.propsTable.width.val(val);
+              //  $(selectedItem).css({width: val + 'px'});
+              //  actions.updateProperties();
+                if(event.which == 37 || event.which == 39 ) {
+                    event.stopPropagation();
+                }
+                if(event.which == 38 || event.which == 40 ) {
+                    // avoid moves on X and Y-axis
+                    // use up-down key to resize width
+                    event.stopPropagation();
+                    var step = event.shiftKey ? 10 : 1,
+                        dir =(event.which ==38) ? 1: -1,
+                        w = $(selectedItem).width() ;
+                    $(selectedItem).width( w + step * dir );
+                    actions.updateProperties();
+                }
             },
             'resizeH': function () {
                 // Change height of an element DONOT allow negative numbers
-                var val = elements.propsTable.height.val();
-                val = String(val).replace(/[^0-9]/g, '');
-                elements.propsTable.height.val(val);
-                $(selectedItem).css({height: val + 'px'});
-                actions.updateProperties();
+              //  var val = elements.propsTable.height.val();
+              //  val = String(val).replace(/[^0-9]/g, '');
+              //  elements.propsTable.height.val(val);
+              //  $(selectedItem).css({height: val + 'px'});
+              //  actions.updateProperties();
+                if(event.which == 37 || event.which == 39 ) {
+                    event.stopPropagation();
+                }
+                if(event.which == 38 || event.which == 40 ) {
+                    // avoid moves on X and Y-axis
+                    // use up-down key to resize width
+                    event.stopPropagation();
+                    var step = event.shiftKey ? 10 : 1,
+                        dir =(event.which ==38) ? 1: -1,
+                        w = $(selectedItem).height() ;
+                    $(selectedItem).height( w + step * dir );
+                    actions.updateProperties();
+                }
             },
             'keySetVal': function (cb) {
                 // change Item X,Y,W,H properties with up-down keys
@@ -356,12 +406,12 @@
                     step = event.shiftKey ? 10 : 1;
 
                 switch (event.which) {
-                    case 40: //keyDown
+                    case 40: //arrowDown
                         event.preventDefault();
                         self.val(Number(self.val()) - step);
                         cb();
                         break;
-                    case 38: // keyUp
+                    case 38: // arrowUp
                         event.preventDefault();
                         self.val(Number(self.val()) + step);
                         cb();
@@ -392,7 +442,7 @@
                 self.append(left);
             },
             'stickPanel': function (stickTo) {
-                if($(this).hasClass('selected')) return;
+                if ($(this).hasClass('selected')) return;
 
                 $('sticky').removeClass('selected');
 
@@ -462,21 +512,17 @@
         elements.panel = $('<panel/>')
             .data('type', 'panel');
         var title = $('<title/>');
-
         title
-            .append($('<sticky/>').addClass('selected').on('click', function () {
-                actions.stickPanel('left')
-            }))
-            .append($('<sticky/>').on('click', function () {
-                actions.stickPanel('top')
-            }))
-            .append($('<sticky/>').on('click', function () {
-                actions.stickPanel('right')
-            }))
-            .append($('<sticky/>').on('click', function () {
-                actions.stickPanel('bottom')
-            }));
+            .append($('<h1/>').html('Wireframer'))
+            .append(
+            $('<pin/>').on('click', function () {
+                ($(this).hasClass('on')) ?
+                    $(this).removeClass('on') :
+                    $(this).addClass('on');
+            })
+        );
         elements.panel.append(title);
+
         elements.workspace.append(elements.panel);
     };
     RULER._assignEvents = function () {
@@ -487,16 +533,20 @@
         });
 
         elements.propsTable.xpos.on('blur', actions.moveOnX).on('keydown', function () {
-            actions.keySetVal.call(this, actions.moveOnX)
+           // actions.keySetVal.call(this, actions.moveOnX)
+            actions.moveOnX();
         });
         elements.propsTable.ypos.on('blur', actions.moveOnY).on('keydown', function () {
-            actions.keySetVal.call(this, actions.moveOnY)
+           // actions.keySetVal.call(this, actions.moveOnY)
+            actions.moveOnY();
         });
         elements.propsTable.width.on('blur', actions.resizeW).on('keydown', function () {
-            actions.keySetVal.call(this, actions.resizeW)
+          //  actions.keySetVal.call(this, actions.resizeW)
+            actions.resizeW();
         });
         elements.propsTable.height.on('blur', actions.resizeH).on('keydown', function () {
-            actions.keySetVal.call(this, actions.resizeH)
+        //    actions.keySetVal.call(this, actions.resizeH)
+            actions.resizeH();
         });
         elements.workspace.on('click', function () {
             //   actions.drawAt.call(self, {x: event.pageX, y: event.pageY})
@@ -514,17 +564,37 @@
         });
 
 
-        $('chrome-ruler').on('contextmenu', function () {
+        elements.workspace.on('contextmenu', function () {
             // disable context menu
             event.preventDefault();
 
+        })
+            .on('mousemove', function () {
+                if (event.pageX < 10) {
+                    elements.panel.css({'transform': 'translateX(0)'});
+                }
+            });
+        elements.panel.on('mouseleave', function () {
+            if ($('panel pin').hasClass('on')) return;
+            elements.panel.css({'transform': 'translateX(-100%)'});
         });
+
         $(window).on('keydown', function () {
 
-            var type = selectedItem != null ? selectedItem.data('type') : '';
-            if (selectedItem != null && event.which == 27) {
-                //deselect on ESC
-                actions.deSelectTarget();
+            var type = selectedItem != null ? selectedItem.data('type') : '',
+                x = selectedItem != null ? selectedItem.position().left :0,
+                y = selectedItem != null ? selectedItem.position().top:0;
+
+            console.log(event.which);
+            if (event.which == 27) {
+                if (selectedItem != null) {
+                    //deselect on ESC
+                    actions.deSelectTarget();
+                }
+                if (elements.workspace.hasClass('draw')) {
+                    // remove draw-pen on ESC
+                    elements.workspace.removeClass('draw');
+                }
             }
             if (event.ctrlKey && event.which == 83) {
                 event.preventDefault();
@@ -534,28 +604,27 @@
             if (selectedItem != null && event.which == 40) {
                 event.preventDefault();
                 if (String(draggableItems[type]).toUpperCase().indexOf('Y') < 0) return;
-                var y = selectedItem.position().top;
+
                 event.shiftKey ? y += 5 : y++;
                 selectedItem.css({
                     top: y
                 });
             }
             if (selectedItem != null && event.which == 38) {
-                //deselect on ESC
+
                 event.preventDefault();
                 if (String(draggableItems[type]).toUpperCase().indexOf('Y') < 0) return;
-                var y = selectedItem.position().top;
+
                 event.shiftKey ? y -= 5 : y--;
                 selectedItem.css({
                     top: y
                 });
-
             }
 
             if (selectedItem != null && event.which == 37) {
                 event.preventDefault();
                 if (String(draggableItems[type]).toUpperCase().indexOf('X') < 0) return;
-                var x = selectedItem.position().left;
+
                 event.shiftKey ? x -= 5 : x--;
                 selectedItem.css({
                     left: x
@@ -564,12 +633,13 @@
             if (selectedItem != null && event.which == 39) {
                 event.preventDefault();
                 if (String(draggableItems[type]).toUpperCase().indexOf('X') < 0) return;
-                var x = selectedItem.position().left;
+
                 event.shiftKey ? x += 5 : x++;
                 selectedItem.css({
                     left: x
                 });
             }
+
             actions.updateProperties();
 
         });
@@ -581,6 +651,7 @@
             $('hline').width(w);
             $('vline').height(h);
         });
+
     };
     RULER._prepareToolBox = function () {
         elements.toolbox = $('<toolbox/>')
@@ -597,8 +668,12 @@
     RULER.addTool = function (tool) {
         resizableItems[tool.type] = tool.resizable;
         draggableItems[tool.type] = tool.draggable;
-        var button = $('<button/>');
+        var button = $('<tool-button/>');
         button
+            .on('mousedown', function () {
+                event.stopPropagation();
+                elements.workspace.removeClass('draw').data('type', '');
+            })
             .on('click', function () {
                 event.stopPropagation();
                 elements.workspace.addClass('draw').data('type', tool.type);
@@ -698,10 +773,11 @@
                 .html('<span>Properties</span><div class="toggle">&lsaquo;</div>'),
             table = $('<div/>').html('<props-table>' +
             '<props-tr><props-td colspan="3"></props-td></props-tr>' +
-            '<props-tr><props-td>Left:</props-td><props-td><input type="text" name="xpos"/></props-td><props-td>px</props-td></props-tr>' +
-            '<props-tr><props-td>Top:</props-td><props-td><input type="text" name="ypos"/></props-td><props-td>px</props-td></props-tr>' +
-            '<props-tr><props-td>Width:</props-td><props-td><input type="text" name="width"/></props-td><props-td>px</props-td></props-tr>' +
-            '<props-tr><props-td>Height</props-td><props-td><input type="text" name="height"/></props-td><props-td>px</props-td></props-tr>' +
+            '<props-tr><props-td>X:</props-td><props-td><input type="text" name="xpos"/></props-td><props-td><input type="range"/></props-td></props-tr>' +
+            '<props-tr><props-td>Y:</props-td><props-td><input type="text" name="ypos"/></props-td><props-td><input type="range"/></props-td></props-tr>' +
+            '<props-tr><props-td>W:</props-td><props-td><input type="text" name="width"/></props-td><props-td><input type="range"/></props-td></props-tr>' +
+            '<props-tr><props-td>H</props-td><props-td><input type="text" name="height"/></props-td><props-td><input type="range"/></props-td></props-tr>' +
+            '<props-tr><props-td>Color</props-td><props-td><input type="color" name="border-color" onchange="console.log($(this).val())"/></props-td><props-td><input type="color"/></props-td></props-tr>' +
             '</props-table>');
 
         elements.propsbox.append(header);

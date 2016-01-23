@@ -22,12 +22,12 @@
             "top", "width", "height", "background-color", "opacity"
         ],
         "button": {
-            "html": "<span style='display: inline-block; width: 80%; height:40%; border:1px solid;'></span>",
+            "html": "<tool-icon style='display: inline-block; width: 60%; height:40%; border:1px solid;'></tool-icon>",
             "tooltip": "Draw a square",
             "Name": "Square",
 
             "onclick": function () {
-                console.log('additional click events');
+                // custom click event
             }
         },
         "target":{
