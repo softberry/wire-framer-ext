@@ -18,9 +18,9 @@
         "type": "text",
         "draggable": "XY",
         "resizable": true,
-        "properties": [
-            "top", "width", "height", "background-color", "opacity"
-        ],
+        "properties": {
+            "top": 0, "width": 0, "height": 0, "backgroundColor": "transparent", "borderColor": "#ff0000", "opacity": 1
+        },
         "button": {
             "html": "<tool-icon style='width: 60%; height: 45%; font-size:20px; line-height: 60%;'>T</tool-icon>",
             "tooltip": "Create a Textfield",

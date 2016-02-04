@@ -18,9 +18,9 @@
         "type": "vline",
         "draggable": "X",
         "resizable": false,
-        "properties": [
-            "top", "width", "height", "background-color", "opacity"
-        ],
+        "properties": {
+                "top":0, "width":0, "height":0, "backgroundColor":"#000000", "opacity":1
+            },
         "button": {
             "html": "<tool-icon style='width:1px; height: 60%; background-color: white;'></tool-icon>",
             "tooltip": "Draw a Horizontal Line",
@@ -31,14 +31,7 @@
             }
         },
         "target":{
-            "content":function(color){
-                return $('<div/>')
-                    .css({
-                        'background-color':'#' + color,
-                        'width':'100%',
-                        'height':'100%'
-                    })
-            }
+            "content":function(){}
         }
     };
     ruler.addTool(line);

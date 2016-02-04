@@ -18,9 +18,9 @@
         "type": "hline",
         "draggable": "Y",
         "resizable": false,
-        "properties": [
-            "top", "width", "height", "background-color", "opacity"
-        ],
+        "properties": {
+            "top":0, "width":0, "height":0, "backgroundColor":"#000000", "opacity":1
+        },
         "button": {
             "html": "<tool-icon style='width: 60%; height: 1px; background-color: white;'></tool-icon>",
             "tooltip": "Draw a Line",
@@ -30,14 +30,8 @@
                 // custom click event
             }
         },
-        "target":{
-            "content":function(color){
-                return $('<div/>')
-                    .css({
-                        'background-color':'#' + color,
-                        'height':'100%'
-                    });
-            }
+        "target": {
+            "content": function () {}
         }
     };
     ruler.addTool(line);
