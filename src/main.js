@@ -591,7 +591,6 @@
         });
         elements.workspace.on('mouseup', function () {
             actions.drawAt.call(self, {x: event.pageX, y: event.pageY});
-            console.log(event.toElement);
             if(selectedItem != null && event.toElement != null ) {
                 // deselect item on outer click
                 if ($(event.toElement.id) != selectedItem) actions.deSelectTarget();
@@ -609,6 +608,8 @@
             .on('mousemove', function () {
                 if (event.pageX < 10) {
                     elements.panel.css({'transform': 'translateX(0)'});
+
+                    elements.workspace.attr('id', 'chrome-ruler').css({zIndex: actions.highestIndex()});
                 }
             });
         elements.panel.on('mouseleave', function () {
