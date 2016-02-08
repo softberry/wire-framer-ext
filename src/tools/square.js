@@ -34,5 +34,5 @@
             "content":function(){}
         }
     };
-    ruler.addTool(square);
+    wireframer.addTool(square);
 })();

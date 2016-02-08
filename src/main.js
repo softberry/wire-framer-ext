@@ -31,9 +31,9 @@
         selectedItem = null, // shortcut to current selected Item on the stage
         resizableItems = {},
         draggableItems = {},
-        itemPrototype={},
+        itemPrototype = {},
         actions = {
-            // Repeated functions served to RULER object
+            // Repeated functions served to WF object
             'highestIndex': function () {
                 var i = 999, zIndex;
                 $('*').each(function () {
@@ -44,7 +44,6 @@
                 });
                 return i;
             },
-            'editableProperties': {},
             'newItem': function (type) {
                 /*
                  * return a new DIV element,
@@ -59,8 +58,8 @@
                 color += String('000000').slice(color.length); // fill unsufficent hexCode with 000000
                 var el = $('<' + type + '/>'); //prepare and return requested type of item
 
-                if(itemPrototype[type].properties.backgroundColor!='transparent') el.css({'background-color':'#'+color});
-                if(itemPrototype[type].properties.borderColor) el.css({'border-color':'#' + color});
+                if (itemPrototype[type].properties.backgroundColor != 'transparent') el.css({'background-color': '#' + color});
+                if (itemPrototype[type].properties.borderColor) el.css({'border-color': '#' + color});
 
                 el.attr({id: 'item-' + uniqueID, 'data-type': type, 'data-color': color})
                     .addClass('item ' + type)
@@ -166,16 +165,16 @@
                 if (selectedItem == null) return;
                 var pos = selectedItem.position(),
                     bg = selectedItem.css('background-color').toString(),
-                    border =selectedItem.css('border-color').toString();
+                    border = selectedItem.css('border-color').toString();
 
                 elements.propsTable.xPos.val(pos.left);
                 elements.propsTable.yPos.val(pos.top);
                 elements.propsTable.width.val(selectedItem.width());
                 elements.propsTable.height.val(selectedItem.height());
                 elements.propsTable.bgColor.val(bg.toHex());
-                elements.propsTable.bgColor.parent().css('background-color',bg);
+                elements.propsTable.bgColor.parent().css('background-color', bg);
                 elements.propsTable.borderColor.val(border.toHex());
-                elements.propsTable.borderColor.parent().css('border-color',border);
+                elements.propsTable.borderColor.parent().css('border-color', border);
 
                 if (resizableItems[selectedItem.data('type')]) {
                     /* update positions of handels*/
@@ -189,7 +188,7 @@
                         $('#' + id + ' .rs-e').css({left: w - 5, top: h / 2 - 5});
                 }
             },
-            'showEditablesOnly':function(){
+            'showEditablesOnly': function () {
                 /**
                  *     //data-prop-visible="left"
                  console.log('selected item type :',actions.editableProperties[selectedItem.data('type')]);
@@ -200,27 +199,38 @@
                  // isNaN(actions.editableProperties[selectedItem.data('type')].left)  $('*[data-prop-visible="left"]').style.display =
 
                  */
-                var availProps=actions.editableProperties[selectedItem.data('type')];
-            //    console.log(elements.propsTable.xPos);
-               // elements.propsTable.xPos.hide();
+
+                /** TODO
+                 *  in props folder create define.js
+                 *  set defaults for each property
+                 *  return creator function for this property and its control
+                 *
+                 */
+
+                console.log(itemPrototype.line);
+                //var availProps = actions.editableProperties[selectedItem.data('type')];
+
+                //    console.log(elements.propsTable.xPos);
+                // elements.propsTable.xPos.hide();
 
 
                 /*
-                elements.propsTable.yPos.val(pos.top);
-                elements.propsTable.width.val(selectedItem.width());
-                elements.propsTable.height.val(selectedItem.height());
-                elements.propsTable.bgColor.val(bg.toHex());
-                elements.propsTable.bgColor.parent().css('background-color',bg);
-                elements.propsTable.borderColor.val(border.toHex());
-                elements.propsTable.borderColor.parent().css('border-color',border);
-                */
+                 elements.propsTable.yPos.val(pos.top);
+                 elements.propsTable.width.val(selectedItem.width());
+                 elements.propsTable.height.val(selectedItem.height());
+                 elements.propsTable.bgColor.val(bg.toHex());
+                 elements.propsTable.bgColor.parent().css('background-color',bg);
+                 elements.propsTable.borderColor.val(border.toHex());
+                 elements.propsTable.borderColor.parent().css('border-color',border);
+                 */
+                
 
             },
             'selectTarget': function (target) {
 
                 if (elements.workspace.hasClass('draw')) return;
                 event.stopPropagation();
-               // if(selectedItem!=null) return actions.deSelectTarget();
+                // if(selectedItem!=null) return actions.deSelectTarget();
                 selectedItem = $(target);
                 /* Set givenID as selected Item */
                 actions.updateProperties();
@@ -395,7 +405,7 @@
                 if (event.which == 38 || event.which == 40) {
                     // avoid moves on X-axis
                     event.stopPropagation();
-                    var e = $.Event('keydown', {which : event.which });
+                    var e = $.Event('keydown', {which: event.which});
                     $(window).trigger(e);
                 }
 
@@ -432,21 +442,21 @@
             },
             'setProperty': function () {
                 // change Item X,Y,W,H properties with up-down keys
-                if(selectedItem==null) return;
+                if (selectedItem == null) return;
                 event.stopPropagation();
 
-                var prop={
-                    'xpos':'left',
-                    'ypos':'top',
-                    'width':'width',
-                    'height':'height'
+                var prop = {
+                    'xpos': 'left',
+                    'ypos': 'top',
+                    'width': 'width',
+                    'height': 'height'
                 };
 
                 var self = $(this),
-                    val=self.val() +'px',
-                      n = prop[self.attr('name')];
+                    val = self.val() + 'px',
+                    n = prop[self.attr('name')];
 
-                    $(selectedItem).css(n, val);
+                $(selectedItem).css(n, val);
                 actions.updateProperties();
 
 
@@ -471,6 +481,7 @@
                 self.append(left);
             },
             'stickPanel': function (stickTo) {
+                /*Deprecated currently panel sick to only left*/
                 if ($(this).hasClass('selected')) return;
 
                 $('sticky').removeClass('selected');
@@ -511,17 +522,17 @@
                 )
             }
         },
-        RULER = {};
+        WF = {};
 
-    RULER.init = function () {
-        if ($('chrome-ruler').length == 1) {
-            $('chrome-ruler').toggle();
+    WF.init = function () {
+        if ($('wireframer').length == 1) {
+            $('wireframer').toggle();
             return;
         }
 
         var self = this;
-        elements.workspace = $('<chrome-ruler/>');
-        elements.workspace.attr('id', 'chrome-ruler').css({zIndex: actions.highestIndex()});
+        elements.workspace = $('<wireframer/>');
+        elements.workspace.attr('id', 'wireframer').css({zIndex: actions.highestIndex()});
 
         $('body').append(elements.workspace);
         self.preparePanel();
@@ -530,37 +541,60 @@
         self._prepareLayersBox();
         self._preparePropsBox();
         self._assignEvents();
-        // actions.draggable.call(elements.toolbox);
-        //  actions.draggable.call(elements.layersBox);
-        //  actions.draggable.call(elements.propsbox);
-
+        elements.toolbox.addClass('no-select');
+        elements.layersBox.addClass('no-select');
+        elements.propsbox.addClass('no-select');
         elements.layersBox.hide();
 
     };
-    RULER.preparePanel = function () {
-        elements.panel = $('<panel/>')
+    WF.preparePanel = function () {
+        elements.panel = $('<panel/>').addClass('no-select')
             .data('type', 'panel');
         var title = $('<title/>');
         title
             .append($('<h1/>').html('Wireframer'))
             .append(
-            $('<pin/>').on('click', function () {
-                ($(this).hasClass('on')) ?
-                    $(this).removeClass('on') :
-                    $(this).addClass('on');
-            })
+            $('<pin/>')
+                .attr('title', 'Lock Panel')
+                .on('click', function () {
+                    ($(this).hasClass('on')) ?
+                        $(this).removeClass('on') :
+                        $(this).addClass('on');
+
+                    $(this).attr('title', $(this).hasClass('on') ? 'Unlock Panel' : 'Lock Panel')
+                })
+        )
+            .append($('<minimize/>')
+                .html('&lsaquo;')
+                .attr('title', 'Minimize Panel')
+                .on('click', function () {
+                    if ($(this).hasClass('off')) {
+                        $(this).removeClass('off')
+
+                            .attr('title', 'Minimize Panel');
+                        elements.panel.css({'height': '100%'});
+                    } else {
+
+                        $(this).addClass('off')
+                            .attr('title', 'Maximize Panel');
+
+                        elements.panel.css({'height': '30px', 'overflow': 'hidden'});
+                    }
+
+
+                })
         );
         elements.panel.append(title);
 
         elements.workspace.append(elements.panel);
     };
-    RULER._assignEvents = function () {
+    WF._assignEvents = function () {
         var self = this;
         $('.toggle').on('click', function () {
             $(this).parent().next().toggle();
             $(this).hasClass('collapsed') ? $(this).removeClass('collapsed') : $(this).addClass('collapsed');
         });
-        elements.propsbox.on('click mouseup mousedown keyup keydown',function(){
+        elements.propsbox.on('click mouseup mousedown keyup keydown', function () {
             /* avoid unwanted deselects on workspace mouseup */
             //event.stopImmediatePropagation();
             event.stopPropagation();
@@ -591,7 +625,7 @@
         });
         elements.workspace.on('mouseup', function () {
             actions.drawAt.call(self, {x: event.pageX, y: event.pageY});
-            if(selectedItem != null && event.toElement != null ) {
+            if (selectedItem != null && event.toElement != null) {
                 // deselect item on outer click
                 if ($(event.toElement.id) != selectedItem) actions.deSelectTarget();
                 return false;
@@ -606,10 +640,10 @@
 
         })
             .on('mousemove', function () {
-                if (event.pageX < 10) {
+                if (event.pageX < 20) {
                     elements.panel.css({'transform': 'translateX(0)'});
 
-                    elements.workspace.attr('id', 'chrome-ruler').css({zIndex: actions.highestIndex()});
+                    elements.workspace.attr('id', 'wireframer').css({zIndex: actions.highestIndex()});
                 }
             });
         elements.panel.on('mouseleave', function () {
@@ -620,9 +654,9 @@
         $(window).on('keydown', function () {
 
             var type = selectedItem != null ? selectedItem.data('type') : '',
-                pos=selectedItem != null ?selectedItem.position():{left:0,top:0},
-                x  = pos.left ,
-                y =  pos.top ;
+                pos = selectedItem != null ? selectedItem.position() : {left: 0, top: 0},
+                x = pos.left,
+                y = pos.top;
 
             if (event.which == 27) {
                 if (selectedItem != null) {
@@ -643,7 +677,7 @@
                 event.preventDefault();
                 if (String(draggableItems[type]).toUpperCase().indexOf('Y') < 0) return;
 
-                event.shiftKey ? y += 5 : y+=1;
+                event.shiftKey ? y += 5 : y += 1;
                 selectedItem.css({
                     top: y
                 });
@@ -653,7 +687,7 @@
                 event.preventDefault();
                 if (String(draggableItems[type]).toUpperCase().indexOf('Y') < 0) return;
 
-                event.shiftKey ? y -= 5 : y-=1;
+                event.shiftKey ? y -= 5 : y -= 1;
                 selectedItem.css({
                     top: y
                 });
@@ -677,7 +711,7 @@
                     left: x
                 });
             }
-            if (selectedItem != null && event.which>=37 && event.which <=40 ){
+            if (selectedItem != null && event.which >= 37 && event.which <= 40) {
 
                 actions.updateProperties();
             }
@@ -694,15 +728,20 @@
         });
 
         /** Selected Item Background-color**/
-        elements.propsTable.bgColor.on('change',function(){console.log('->',selectedItem);selectedItem.css({backgroundColor:$(this).val()});});
+        elements.propsTable.bgColor.on('change', function () {
+
+            selectedItem.css({backgroundColor: $(this).val()});
+        });
         /** Select Item Border-color**/
-        elements.propsTable.borderColor.on('change',function(){selectedItem.css({borderColor:$(this).val()});});
+        elements.propsTable.borderColor.on('change', function () {
+            selectedItem.css({borderColor: $(this).val()});
+        });
 
     };
-    RULER._prepareToolBox = function () {
+    WF._prepareToolBox = function () {
         elements.toolbox = $('<toolbox/>')
             .addClass('toolbox');
-        var header = $('<title/>')
+        var header = $('<title/>').addClass('no-select')
 
             .html('<span>Tools</span><div class="toggle">&lsaquo;</div>');
         elements.tools = $('<tools/>')
@@ -711,7 +750,7 @@
         elements.panel.append(elements.toolbox);
 
     };
-    RULER.addTool = function (tool) {
+    WF.addTool = function (tool) {
         resizableItems[tool.type] = tool.resizable;
         draggableItems[tool.type] = tool.draggable;
         var button = $('<tool-button/>');
@@ -730,13 +769,12 @@
                 title: tool.button.tooltip
             });
 
-
         itemPrototype[tool.type] = tool;
 
         elements.tools.append(button);
 
     };
-    RULER._prepareLayersBox = function () {
+    WF._prepareLayersBox = function () {
         elements.layersBox = $('<layers/>')
             .addClass('layers');
         var header = $('<title/>')
@@ -749,7 +787,7 @@
         elements.panel.append(elements.layersBox);
 
     };
-    RULER.addLayer = function (el) {
+    WF.addLayer = function (el) {
         actions.updateProperties(el);
         el.on('contextmenu', function () {
             event.preventDefault();
@@ -759,12 +797,12 @@
                 var parent = $(this).parent('ul'),
                     targetID = '#' + parent.data('target');
                 /*
-                actions.deSelectTarget(targetID);
-                if (parent.hasClass('selected')) {
-                    parent.removeClass('selected');
-                    return;
-                }
-                */
+                 actions.deSelectTarget(targetID);
+                 if (parent.hasClass('selected')) {
+                 parent.removeClass('selected');
+                 return;
+                 }
+                 */
                 $('.layers ul').removeClass('selected');
                 parent.addClass('selected');
 
@@ -814,7 +852,8 @@
         elements.layers.append(ul);
         elements.layersBox.show();
     };
-    RULER._preparePropsBox = function () {
+    WF._preparePropsBox = function () {
+
         elements.propsbox = $('<props/>')
             .addClass('props');
         var labelID = new Date().getTime(),
@@ -847,12 +886,13 @@
         elements.propsTable.bgColor = $('.props input[name=background]');
         elements.propsTable.borderColor = $('.props input[name=border]');
         elements.propsbox.hide();
+
     };
-    window.ruler = RULER;
-    RULER.init();
+    window.wireframer = WF;
+    WF.init();
 })(Zepto);
 /** TODO:
- * -- workspace click : deselect item and layer
+ * -- workspace click : deselect item and layer : done
  * -- show only editable properties
  * -- update range min,max and value
  * ---------------------------------------------
@@ -868,5 +908,5 @@
  * 8- Send as email
  * 9- Additional Tools:
  *  -html form elements : checkbox,radio,input etc....
- *  -screenshot
+ *  -
  */

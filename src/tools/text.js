@@ -44,5 +44,5 @@
             }
         }
     };
-    ruler.addTool(line);
+    wireframer.addTool(line);
 })();

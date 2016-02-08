@@ -4,7 +4,7 @@ $headerBG: #333333;
 $headerColor: #ffcc99;
 $toolButtonColor: #eeeeee;
 $toolButtonBG: #444444;
-chrome-ruler {
+wireframer {
   font-size: 10px;
   font-family: "Lucida Grande", "Trebuchet MS", sans-serif;
   position: absolute;
@@ -44,34 +44,52 @@ chrome-ruler {
         margin: 0px;
         padding: .8em 24px;
         color: $toolButtonBG;
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH4AELFhgh5ihIVgAAAclJREFUOMtjYMAC1NS8VjEwmKgyEAGY0AUMjYKnBoVahSYlO19jY7LSJdkAPj4ew2/ffzN8//WdJSHV8RIvt6UFPgOY0QUePri44M8vUWclNWm5py9fMdjY6KfcvvHt4M9fzx4QZQADA8P/58+vzf/2hd9STUtR+c79RwyOThYJt699PvXz1/M7xBjAwMDAwPD6tdzSLx+f66tqK2pcu3mHwcXdLvruzc83f/x8doUoAxgY7jG8e3d35Zf3HCqKapJ6F65cZnBxtQ65dfPL69+/XpwmwgAI+Pjhwfov79mklRSEjc9dOM/g5GTu/eDej8+/f786jjUWsIF/f4QOM/z6+Yeb5T/D0we3GRQVZOJwRiM6kJRwLdPVY130+MkLFmEhUYa3b5iOvXoqakaUATLSLj16+kKdDx++YpCRkWN4+vjPphu3DWxefVj8C6aGEZdmBXn3RVrqorF37z1ikJGRZLh58/XcJ8/3paCrw2qAmqr3DmUlIfcHD54zSEuJMVy++qz95asDVdjUYhigrxd8RFSEw/rtmw8MwiKCDBcuPS5+8+ZgH9F54f27j+flFWQYePn4Gc6efxiHTzNOICXhtFZIyNGLGLUAZwW0C471zcAAAAAASUVORK5CYII=')  no-repeat 2px center;
+        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAC4jAAAuIwF4pT92AAAAB3RJTUUH4AELFhgh5ihIVgAAAclJREFUOMtjYMAC1NS8VjEwmKgyEAGY0AUMjYKnBoVahSYlO19jY7LSJdkAPj4ew2/ffzN8//WdJSHV8RIvt6UFPgOY0QUePri44M8vUWclNWm5py9fMdjY6KfcvvHt4M9fzx4QZQADA8P/58+vzf/2hd9STUtR+c79RwyOThYJt699PvXz1/M7xBjAwMDAwPD6tdzSLx+f66tqK2pcu3mHwcXdLvruzc83f/x8doUoAxgY7jG8e3d35Zf3HCqKapJ6F65cZnBxtQ65dfPL69+/XpwmwgAI+Pjhwfov79mklRSEjc9dOM/g5GTu/eDej8+/f786jjUWsIF/f4QOM/z6+Yeb5T/D0we3GRQVZOJwRiM6kJRwLdPVY130+MkLFmEhUYa3b5iOvXoqakaUATLSLj16+kKdDx++YpCRkWN4+vjPphu3DWxefVj8C6aGEZdmBXn3RVrqorF37z1ikJGRZLh58/XcJ8/3paCrw2qAmqr3DmUlIfcHD54zSEuJMVy++qz95asDVdjUYhigrxd8RFSEw/rtmw8MwiKCDBcuPS5+8+ZgH9F54f27j+flFWQYePn4Gc6efxiHTzNOICXhtFZIyNGLGLUAZwW0C471zcAAAAAASUVORK5CYII=') no-repeat 2px center;
 
       }
+      minimize {
+        display: block;
+        position: absolute;
+        width: 1.0em;
+        height: 1.0em;
+        right: .2em;
+        top: .1em;
+        font-size: 2em;
+        line-height: 1em;
+        text-align: center;
+        transform: rotate(-90deg);
+        transition: transform .5s;
+        cursor: pointer;
+        &.off {
+          transform: rotate(0deg)
+        }
+      }
+
       pin {
         width: 1.1em;
         height: 1.1em;
         cursor: pointer;
         border-radius: 20%;
         position: absolute;
-        right: 2px;
-        top: 2px;
+        right: 2.5em;
+        top: .5em;
         background-color: $toolButtonBG;
         box-shadow: inset 0 0 4px 1px $boxShadow;
 
         transform-origin: 0% 50%;
-      &:before{
-        content: ' ';
-        width: 1.1em;
-        height: 1.1em;
-        cursor: pointer;
-        border-radius: 20%;
-        position: absolute;
-        right: .9em;
-        top: 0;
-        background-color: white;
-        box-shadow: inset 0 0 1px 1px $boxShadow;
-      }
-        &.on{
+        &:before {
+          content: ' ';
+          width: 1.1em;
+          height: 1.1em;
+          cursor: pointer;
+          border-radius: 20%;
+          position: absolute;
+          right: .9em;
+          top: 0;
+          background-color: white;
+          box-shadow: inset 0 0 1px 1px $boxShadow;
+        }
+        &.on {
           transform: scaleX(-1);
         }
       }
@@ -81,7 +99,10 @@ chrome-ruler {
   &.draw {
     cursor: crosshair;
   }
+  .no-select {
 
+    user-select: none;
+  }
   toolbox, layers, props {
     min-width: 74px;
     display: block;
@@ -90,8 +111,7 @@ chrome-ruler {
     top: 0;
     width: 100%;
     background-color: $toolboxBG;
-    // z-index: 999;
-    user-select: none;
+
     padding-bottom: 4px;
     title {
       font-size: 1em;
@@ -147,11 +167,14 @@ chrome-ruler {
       display: table;
       position: relative;
 
-      >* {
+      > * {
         border-color: $toolButtonColor !important;
         position: absolute;
         margin: auto;
-        top:0;left:0;right: 0;bottom: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
 
       }
     }
@@ -257,7 +280,7 @@ chrome-ruler {
       margin-top: -1.4em;
     }
   }
-  circle.resizable,square.resizable{
+  circle.resizable, square.resizable {
 
     cursor: move;
   }
@@ -351,22 +374,22 @@ chrome-ruler {
           flex-grow: 1;
           min-width: 20px;
         }
-        label.color-picker{
+        label.color-picker {
           display: block;
           width: 10px;
           height: 10px;
           border: $toolButtonColor 1px solid;
           overflow: hidden;
-          &:after{
+          &:after {
 
           }
-          &.bg{
+          &.bg {
             background-color: pink;
           }
-          &.border{
+          &.border {
             border: pink 1px solid;
           }
-          input[type=color]{
+          input[type=color] {
             display: inline;
             width: 100%;
             height: 100%;
@@ -381,9 +404,9 @@ chrome-ruler {
         color: #cccccc !important;
         //width: 100%;
         font-size: 10px !important;
-       // display: inline !important;
+        // display: inline !important;
         width: 30px !important;
-       // float: left !important;
+        // float: left !important;
       }
     }
   }
