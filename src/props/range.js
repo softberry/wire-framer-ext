@@ -10,5 +10,6 @@
      *
      * RULER.properties.call(el, [width,height,bla,bla])
      *
-    */
+     */
+
 })();

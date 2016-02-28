@@ -207,7 +207,29 @@
                  *
                  */
 
-                console.log(itemPrototype.line);
+                $('props-tr').remove();
+                var propsTable = $('props-table'), propsRow, td, el, ctrl;
+                for (var n in itemPrototype[selectedItem.data('type')].properties) {
+                    console.log(WF.propertyControls[n]);
+                    el = WF.propertyControls[n];
+                    propsRow = $('<props-tr/>');
+                    propsTable.append(propsRow);
+
+                    if (el.label) {
+                        td = $('<props-td/>');
+                        td.html(el.label);
+                        propsRow.append(td);
+                    }
+                    for (var c = 0; c < el.control.length; c++) {
+                        td = $('<props-td/>'),
+                            ctrl = $('<input/>');
+                        ctrl.attr({'type': el.control[c],'value':selectedItem.css(el.css)});
+                        td.append(ctrl);
+                        propsRow.append(td);
+                    }
+                }
+
+                //   $('props-table').html('');
                 //var availProps = actions.editableProperties[selectedItem.data('type')];
 
                 //    console.log(elements.propsTable.xPos);
@@ -223,7 +245,7 @@
                  elements.propsTable.borderColor.val(border.toHex());
                  elements.propsTable.borderColor.parent().css('border-color',border);
                  */
-                
+
 
             },
             'selectTarget': function (target) {
@@ -887,6 +909,66 @@
         elements.propsTable.borderColor = $('.props input[name=border]');
         elements.propsbox.hide();
 
+    };
+    WF.propertyControls = {
+        'width': {
+            'label': 'W',
+            'css': 'width',
+            'min': 0,
+            'max': 100,
+            'control': ['text', 'range']
+        },
+        'height': {
+            'label': 'H',
+            'css': 'height',
+            'min': 0,
+            'max': 100,
+            'control': ['text', 'range']
+        },
+        'left': {
+            'label': 'X',
+            'css': 'left',
+            'min': 0,
+            'max': 100,
+            'control': ['text', 'range']
+        },
+        'top': {
+            'label': 'Y',
+            'css': 'top',
+            'min': 0,
+            'max': 100,
+            'control': ['text', 'range']
+        },
+        'backgroundColor': {
+            'label': 'Background Color',
+            'css': 'background-color',
+            'control': ['color']
+        },
+        'borderColor': {
+            'label': 'Border Color',
+            'css': 'border-color',
+            'control': ['color']
+        },
+        'borderWidth': {
+            'label': 'Border Width',
+            'css': 'border-width',
+            'min': 1,
+            'max': 16,
+            'control': ['text', 'range']
+        },
+        'borderStyle': {
+            'label': 'Border Style',
+            'css': 'border-style',
+            'options': ['solid', 'dashed', 'dotted'],
+            'control': ['select']
+        },
+        'opacity': {
+            'label': 'Opacity',
+            'css': 'opacity',
+            'min': 0,
+            'max': 1,
+            'control': ['text', 'range']
+        }
     };
     window.wireframer = WF;
     WF.init();

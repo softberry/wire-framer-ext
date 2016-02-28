@@ -2,5 +2,6 @@ _materials/
 .idea/
 dist/
 publish/
+node_modules/
 *.crx
 *.pem

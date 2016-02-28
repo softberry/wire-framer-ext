@@ -3,12 +3,12 @@
  */
 (function () {
 
-    var line = {
+    var circle = {
         "type": "circle",
         "draggable": "XY",
         "resizable": true,
         "properties": {
-            "top":0, "width":0, "height":0, "backgroundColor":"transparent","borderColor":"#ffff00", "opacity":1
+            "left":0,"top":0, "width":0, "height":0, "backgroundColor":"transparent","borderColor":"#ffff00", "opacity":1
         },
         "button": {
             "html": "<span style='display: inline-block; width: 60%; height:60%; border:1px solid; border-radius: 50%;'></span>",
@@ -23,5 +23,5 @@
             "content":function(){}
         }
     };
-    wireframer.addTool(line);
+    wireframer.addTool(circle);
 })();
