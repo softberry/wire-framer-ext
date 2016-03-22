@@ -14,5 +14,7 @@ This tool is still underconstruction.
 ## Next Development Steps
 - Screenshot
 - Save & Send as email
-- More drawing tools like : drawable form elements, Ruler, etc.
+- More drawing tools like : drawable form elements, Ruler, etc.  
+
+## Pull request are welcome
 
