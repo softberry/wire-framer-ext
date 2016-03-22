@@ -1,7 +1,7 @@
 # WIREFRAMER
 ## Create Wireframes on the fly
 
-This a Chrome browser extension, that you can directly draw on browser window.  
+This a Chrome browser extension, that you can directly draw wireframes on browser window.  
 
     
 ### How to try:
@@ -14,5 +14,5 @@ This tool is still underconstruction.
 ## Next Development Steps
 - Screenshot
 - Save & Send as email
-- Measuring tools
+- More drawing tools like : drawable form elements, Ruler, etc.
 
