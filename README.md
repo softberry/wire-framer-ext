@@ -9,5 +9,10 @@ To download and test on your browser : [click here](https://chrome.google.com/we
 
 Open a URL from the internet or any image with Chrome and click to symbol upper right hand corner ![WireFramer Button](button.png)  
 
+This tool is still underconstruction. 
 
+## Next Development Steps
+- Screenshot
+- Save & Send as email
+- Measuring tools
 
