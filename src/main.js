@@ -4,13 +4,11 @@
 ;
 (function ($) {
     'use strict';
-
+    /**
+     * Shorhand variables for oft used elements
+     * @type {{workspace: {}, panel: {}, toolbox: {}, propsbox: {}, hRuler: {}, vRuler: {}, tools: {}, layersBox: {}, layers: {}, items: {}, propsTable: {x: {}}}}
+     */
     var elements = {
-            /*
-             All DOM Elements used as containers.
-             Shorthand variables for re-usability
-             */
-
             workspace: {},
             panel: {},
             toolbox: {},
@@ -26,14 +24,33 @@
             }
 
         },
-        uniqueID = 0, /* each element like a line or a square has a uniqueID.
-     Automatically increased before a new Item inserted */
-        selectedItem = null, // shortcut to current selected Item on the stage
+        /**
+         * each element like a line or a square has a uniqueID.
+         Automatically increased before a new Item inserted
+         * @type {number}
+         */
+        uniqueID = 0,
+        /**
+         *  shortcut to current selected Item on the stage
+         * @type {null}
+         */
+        selectedItem = null,
+        /**
+         * all items that can be resized
+         * @type {{object}}
+         */
         resizableItems = {},
+        /**
+         * all items that can be draggable on the stage
+         * @type {{object}}
+         */
         draggableItems = {},
         itemPrototype = {},
+        /**
+         * Repeated functions served to WF object
+         * @type {{highestIndex: Function, newItem: Function, drawGuide: Function, updateGuide: Function, drawAt: Function, updateProperties: Function, showEditablesOnly: Function, selectTarget: Function, deSelectTarget: Function, draggable: Function, moveOnX: Function, moveOnY: Function, resizeW: Function, resizeH: Function, setProperty: Function, resizable: Function, stickPanel: Function}}
+         */
         actions = {
-            // Repeated functions served to WF object
             'highestIndex': function () {
                 var i = 999, zIndex;
                 $('*').each(function () {
@@ -44,15 +61,21 @@
                 });
                 return i;
             },
+            /**
+             * return a new DIV element,
+             * with default properties according to requested type
+             * @param type
+             * @returns {HTMLElement}
+             */
             'newItem': function (type) {
                 /*
-                 * return a new DIV element,
-                 * with default properties according to requested type
-                 * */
-
-
-                uniqueID++; // Increase ID
-                var label = $('<div/>').addClass('label').html(''),                         //create label for the element
+                Increase ID before each newly created element
+                 */
+                uniqueID++;
+                /**
+                 * create label for the element
+                 */
+                var label = $('<div/>').addClass('label').html(''),
                     color = Math.floor(Math.random() * 16777215).toString(16);  // set a rondom color
 
                 color += String('000000').slice(color.length); // fill unsufficent hexCode with 000000
@@ -71,6 +94,10 @@
                 }
                 return el;
             },
+            /**
+             * Draw a preview guide on the stage
+             * @param pos
+             */
             'drawGuide': function (pos) {
 
                 if (!elements.workspace.hasClass('draw')) return;
@@ -87,6 +114,10 @@
                     .css({left: pos.x, top: pos.y});
 
             },
+            /**
+             * Update position and size of the guide on drag
+             * @param pos
+             */
             'updateGuide': function (pos) {
 
                 var guide = $('guide'),
@@ -95,9 +126,7 @@
                     w = pos.x - l,
                     h = pos.y - t,
                     type = elements.workspace.data('type');
-                /**
-                 * update guide position on the stage according to its type
-                 */
+
                 switch (type) {
                     case 'hline':
                         $(guide).css({top: pos.y, left: 0});
@@ -120,6 +149,10 @@
                 }
 
             },
+            /**
+             * Start drawing at given position
+             * @param pos
+             */
             'drawAt': function (pos) {
                 var self = this,
                     guide = $('guide');
@@ -155,13 +188,10 @@
                     opacity: 1
                 });
             },
+            /**
+             * Get current position and size of the Selected and update input values in properties table
+             */
             'updateProperties': function () {
-                /*
-                 Get current position and size of the
-                 Selected and update input values in
-                 properties table
-                 */
-
                 if (selectedItem == null) return;
                 var pos = selectedItem.position(),
                     bg = selectedItem.css('background-color').toString(),
@@ -182,23 +212,13 @@
                         h = selectedItem.height(),
                         id = selectedItem.attr('id'); // get container height
                     /* prepare handles, set type and class attributes as well as initial positions*/
-                    $('#' + id + ' .rs-n').css({left: w / 2 - 5, top: -5}),
-                        $('#' + id + ' .rs-w').css({left: -5, top: h / 2 - 5}),
-                        $('#' + id + ' .rs-s').css({left: w / 2 - 5, top: h - 5}),
+                    $('#' + id + ' .rs-n').css({left: w / 2 - 5, top: -5});
+                        $('#' + id + ' .rs-w').css({left: -5, top: h / 2 - 5});
+                        $('#' + id + ' .rs-s').css({left: w / 2 - 5, top: h - 5});
                         $('#' + id + ' .rs-e').css({left: w - 5, top: h / 2 - 5});
                 }
             },
             'showEditablesOnly': function () {
-                /**
-                 *     //data-prop-visible="left"
-                 console.log('selected item type :',actions.editableProperties[selectedItem.data('type')]);
-                 $('*[data-prop-visible="left"]').hide();
-                 for(var propName in actions.editableProperties[selectedItem.data('type')]){
-
-                    }
-                 // isNaN(actions.editableProperties[selectedItem.data('type')].left)  $('*[data-prop-visible="left"]').style.display =
-
-                 */
 
                 /** TODO
                  *  in props folder create define.js
@@ -221,33 +241,20 @@
                         propsRow.append(td);
                     }
                     for (var c = 0; c < el.control.length; c++) {
-                        td = $('<props-td/>'),
+                        td = $('<props-td/>');
                             ctrl = $('<input/>');
-                        ctrl.attr({'type': el.control[c],'value':selectedItem.css(el.css)});
+                        ctrl.attr({'type': el.control[c], 'value': selectedItem.css(el.css)});
                         td.append(ctrl);
                         propsRow.append(td);
                     }
                 }
 
-                //   $('props-table').html('');
-                //var availProps = actions.editableProperties[selectedItem.data('type')];
-
-                //    console.log(elements.propsTable.xPos);
-                // elements.propsTable.xPos.hide();
-
-
-                /*
-                 elements.propsTable.yPos.val(pos.top);
-                 elements.propsTable.width.val(selectedItem.width());
-                 elements.propsTable.height.val(selectedItem.height());
-                 elements.propsTable.bgColor.val(bg.toHex());
-                 elements.propsTable.bgColor.parent().css('background-color',bg);
-                 elements.propsTable.borderColor.val(border.toHex());
-                 elements.propsTable.borderColor.parent().css('border-color',border);
-                 */
-
 
             },
+            /**
+             * Select and show handles on clicked item (target) on the stage
+             * @param target
+             */
             'selectTarget': function (target) {
 
                 if (elements.workspace.hasClass('draw')) return;
@@ -267,15 +274,18 @@
                         h = selectedItem.height(),
                         id = selectedItem.attr('id'); // get container height
                     /* prepare handles, set type and class attributes as well as initial positions*/
-                    $('#' + id + ' .rs-n').css({left: w / 2 - 5, top: -5}),
-                        $('#' + id + ' .rs-w').css({left: -5, top: h / 2 - 5}),
-                        $('#' + id + ' .rs-s').css({left: w / 2 - 5, top: h - 5}),
+                    $('#' + id + ' .rs-n').css({left: w / 2 - 5, top: -5});
+                        $('#' + id + ' .rs-w').css({left: -5, top: h / 2 - 5});
+                        $('#' + id + ' .rs-s').css({left: w / 2 - 5, top: h - 5});
                         $('#' + id + ' .rs-e').css({left: w - 5, top: h / 2 - 5});
 
                 }
 
 
             },
+            /**
+             * Finalize selecting
+             */
             'deSelectTarget': function () {
                 if (selectedItem === null) return;
                 selectedItem.removeClass('resizable');
@@ -285,10 +295,10 @@
                 /*hide Properties table*/
 
             },
+            /**
+             * Enable element to be draggable on the stage
+             **/
             'draggable': function () {
-                /* Enable element to be draggable on the stage
-
-                 */
 
                 var self = this;
                 $('.draggable').removeClass('draggable');
@@ -310,6 +320,10 @@
                     elements.workspace.on('mousemove', drag);
                     elements.workspace.one('mouseup', dragEnd);
                 };
+                /**
+                 *
+                 * @returns {*}
+                 */
                 function drag() {
                     // dragging Function
 
@@ -388,8 +402,10 @@
                     actions.updateProperties();
                 }
 
+                /**
+                 * Disable draggabilty function
+                 */
                 function dragEnd() {
-                    // Disable draggabilty function
                     $('.draggable').removeClass('draggable');
                     elements.workspace.off('mousemove', drag);
 
@@ -398,13 +414,12 @@
                 $(self).on('mousedown', dragStart);
 
             },
+            /**
+             * use arrow events assigned to window element,
+             * when a property (x,y,w,h) changed
+             */
             'moveOnX': function () {
 
-                /**
-                 * use arrow events assigned to window element,
-                 * when a property (x,y,w,h) changed
-                 *
-                 */
                 if (event.which == 37 || event.which == 39) {
                     event.stopPropagation();
                 }
@@ -418,6 +433,11 @@
 
 
             },
+            /**
+             * use arrow events assigned to window element,
+             * when a property (x,y,w,h) changed
+             */
+
             'moveOnY': function () {
                 if (event.which == 37 || event.which == 39) {
                     // avoid moves on X-axis
@@ -432,6 +452,9 @@
                 }
 
             },
+            /**
+             * Change the width of the element
+             */
             'resizeW': function () {
                 if (event.which == 37 || event.which == 39) {
                     event.stopPropagation();
@@ -447,6 +470,9 @@
                     actions.updateProperties();
                 }
             },
+            /**
+             * change the Height of the element
+             */
             'resizeH': function () {
                 if (event.which == 37 || event.which == 39) {
                     event.stopPropagation();
@@ -462,6 +488,9 @@
                     actions.updateProperties();
                 }
             },
+            /**
+             * apply style properties to the element
+             */
             'setProperty': function () {
                 // change Item X,Y,W,H properties with up-down keys
                 if (selectedItem == null) return;
@@ -483,6 +512,9 @@
 
 
             },
+            /**
+             * set item as resizable
+             */
             'resizable': function () {
                 var self = this;
 
@@ -545,7 +577,9 @@
             }
         },
         WF = {};
-
+    /**
+     * initaliser of the Top level WF element
+     */
     WF.init = function () {
         if ($('wireframer').length == 1) {
             $('wireframer').toggle();
@@ -569,6 +603,9 @@
         elements.layersBox.hide();
 
     };
+    /**
+     * Prepare control panel that contains controls
+     */
     WF.preparePanel = function () {
         elements.panel = $('<panel/>').addClass('no-select')
             .data('type', 'panel');
@@ -610,6 +647,10 @@
 
         elements.workspace.append(elements.panel);
     };
+    /**
+     * assign required events (click, mousemove, mousedown etc...) to the elements on the stage
+     * @private
+     */
     WF._assignEvents = function () {
         var self = this;
         $('.toggle').on('click', function () {
@@ -760,6 +801,10 @@
         });
 
     };
+    /**
+     * prepares tools container on the panel
+     * @private
+     */
     WF._prepareToolBox = function () {
         elements.toolbox = $('<toolbox/>')
             .addClass('toolbox');
@@ -772,6 +817,10 @@
         elements.panel.append(elements.toolbox);
 
     };
+    /**
+     * creates new Tool iven as object
+     * @param tool
+     */
     WF.addTool = function (tool) {
         resizableItems[tool.type] = tool.resizable;
         draggableItems[tool.type] = tool.draggable;
@@ -796,6 +845,10 @@
         elements.tools.append(button);
 
     };
+    /**
+     * prepares layers container on the panel
+     * @private
+     */
     WF._prepareLayersBox = function () {
         elements.layersBox = $('<layers/>')
             .addClass('layers');
@@ -809,6 +862,10 @@
         elements.panel.append(elements.layersBox);
 
     };
+    /**
+     * add a layer on the stage
+     * @param el
+     */
     WF.addLayer = function (el) {
         actions.updateProperties(el);
         el.on('contextmenu', function () {
@@ -818,13 +875,7 @@
 
                 var parent = $(this).parent('ul'),
                     targetID = '#' + parent.data('target');
-                /*
-                 actions.deSelectTarget(targetID);
-                 if (parent.hasClass('selected')) {
-                 parent.removeClass('selected');
-                 return;
-                 }
-                 */
+
                 $('.layers ul').removeClass('selected');
                 parent.addClass('selected');
 
@@ -874,6 +925,10 @@
         elements.layers.append(ul);
         elements.layersBox.show();
     };
+    /**
+     * Prepares properties container on the panel
+     * @private
+     */
     WF._preparePropsBox = function () {
 
         elements.propsbox = $('<props/>')
