@@ -10,22 +10,22 @@
     "type": "",
     "url": ""
   },
-  "dependencies": {
-    "gulp": "3.8.11",
-    "gulp-uglify": "1.1.0",
-    "gulp-sass": "1.3.3",
-    "gulp-cssnano": "^2.0.0",
-    "gulp-livereload": "3.8.0",
-    "gulp-autoprefixer": "2.1.0",
-    "gulp-rename": "1.2.0",
-    "gulp-concat": "^2.6.0",
-    "gulp-shell": "^0.5.1",
-    "gulp-zip": "^3.0.2",
-    "gulp-strip-debug": "^1.1.0",
-    "gulp-clean": "^0.3.1"
-  },
+  "dependencies": {},
   "keywords": [],
   "author": "Emre Sakarya",
   "license": "ISC",
-  "devDependencies": {}
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-clean": "^0.3.2",
+    "gulp-concat": "^2.6.0",
+    "gulp-cssnano": "^2.1.1",
+    "gulp-livereload": "^3.8.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.2.0",
+    "gulp-shell": "^0.5.2",
+    "gulp-strip-debug": "^1.1.0",
+    "gulp-uglify": "^1.5.3",
+    "gulp-zip": "^3.2.0"
+  }
 }
